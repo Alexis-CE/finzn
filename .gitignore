@@ -1,0 +1,7 @@
+# Exports de datos personales - nunca subir
+mis_finanzas.json
+*.json
+!package.json
+
+# Por si algún día pruebas algo con Node
+node_modules/

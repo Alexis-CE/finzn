@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿En qué se me va la lana?</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <div><h1>💸 ¿En qué se me va la lana?</h1><div class="sub">Ingresos, gastos y consejos con IA</div></div>
+  <div class="fileops">
+    <button class="secondary" onclick="exportarJSON()">⬇ Exportar</button>
+    <button class="secondary" onclick="document.getElementById('fileInput').click()">⬆ Importar</button>
+    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="importarJSON(event)">
+  </div>
+</header>
+
+<main>
+  <!-- DASHBOARD -->
+  <div class="stats">
+    <div class="stat accent"><div class="icon">💰</div><div class="label">Balance</div><div class="val" id="statBalance">$0</div></div>
+    <div class="stat pos"><div class="icon">📈</div><div class="label">Ingresos</div><div class="val" id="statIn">$0</div></div>
+    <div class="stat neg"><div class="icon">📉</div><div class="label">Gastos</div><div class="val" id="statOut">$0</div></div>
+    <div class="stat"><div class="icon">🐖</div><div class="label">Tasa de ahorro</div><div class="val" id="statRate">0%</div></div>
+  </div>
+
+  <div class="card">
+    <div class="meter" id="meter"></div>
+    <div class="meter-legend"><span id="meterInTxt">Ingresos $0</span><span id="meterOutTxt">Gastos $0</span></div>
+  </div>
+
+  <!-- FORM -->
+  <div class="card">
+    <div class="tabs">
+      <div class="tab active" id="tabGasto" onclick="switchTab('gasto')">📉 Gasto</div>
+      <div class="tab" id="tabIngreso" onclick="switchTab('ingreso')">📈 Ingreso</div>
+    </div>
+
+    <form id="formGasto">
+      <input type="number" id="montoG" placeholder="Monto" step="0.01" required>
+      <select id="categoria" required>
+        <option value="Comida">🍔 Comida</option>
+        <option value="Transporte">🚌 Transporte</option>
+        <option value="Ropa">👕 Ropa</option>
+        <option value="Salidas/Ocio">🎮 Salidas/Ocio</option>
+        <option value="Suscripciones">🔁 Suscripciones</option>
+        <option value="Escuela">📚 Escuela</option>
+        <option value="Videojuegos/Apps">🕹 Videojuegos/Apps</option>
+        <option value="Mascota">🐾 Mascota</option>
+        <option value="Otro">🔹 Otro</option>
+      </select>
+      <input type="text" id="descG" placeholder="Descripción (opcional)">
+      <button type="submit">Agregar</button>
+    </form>
+
+    <form id="formIngreso" style="display:none">
+      <input type="number" id="montoI" placeholder="Monto" step="0.01" required>
+      <select id="fuente" required>
+        <option value="Mesada">🏠 Mesada</option>
+        <option value="Chambita/Freelance">💻 Chambita/Freelance</option>
+        <option value="Trabajo">💼 Trabajo</option>
+        <option value="Otro">🔹 Otro</option>
+      </select>
+      <input type="text" id="descI" placeholder="Descripción (ej. tarea de Python)">
+      <button type="submit">Agregar</button>
+    </form>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="toprow"><h2>📋 Movimientos</h2><span class="badge" id="count">0 registros</span></div>
+      <table>
+        <thead><tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Monto</th><th></th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="empty" id="emptyState" style="display:none">Todavía no hay movimientos. Agrega tu primer gasto o ingreso arriba ↑</div>
+    </div>
+    <div class="card">
+      <h2>🍩 Gastos por categoría</h2>
+      <div class="chartwrap"><canvas id="chart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🤖 Análisis con IA</h2>
+    <p class="badge">La IA revisa tus movimientos y te dice en qué se te va el dinero, si tus ingresos cubren tus gastos y qué podrías ajustar. No sustituye consejo financiero profesional.</p>
+    <button class="ia" onclick="analizar()">Analizar mis finanzas</button>
+    <div id="iaResult"></div>
+  </div>
+</main>
+
+<script src="main.js"> </script>
+</body>
+</html>
