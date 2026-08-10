@@ -79,13 +79,6 @@ const STORAGE_KEY = 'finanzas_datos_v1';
 const API_KEY_STORAGE = 'finanzas_groq_key';
 const LANG_STORAGE = 'finanzas_lang';
 
-const DEMO_GASTOS = [
-  {tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria:"Suscripciones", desc:"Spotify", monto:115},
-];
-const DEMO_INGRESOS = [
-  {tipo:'ingreso', fecha:new Date().toISOString().slice(0,10), categoria:"Mesada", desc:"Semanal", monto:300},
-];
-
 function cargarDatos(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
