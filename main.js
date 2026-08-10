@@ -80,13 +80,14 @@ const API_KEY_STORAGE = 'finanzas_groq_key';
 const LANG_STORAGE = 'finanzas_lang';
 
 const DEMO_GASTOS = [
-  {tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria:\"Comida\", desc:\"Tacos con amigos\", monto:120},
-  {tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria:\"Suscripciones\", desc:\"Spotify\", monto:115},
-  {tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria:\"Videojuegos/Apps\", desc:\"Skin de juego\", monto:200},
+  {tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria:"Comida", desc:"Tacos con amigos", monto:120},
+  {tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria:"Suscripciones", desc:"Spotify", monto:115},
+  {tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria:"Videojuegos/Apps", desc:"Skin de juego", monto:200},
 ];
+
 const DEMO_INGRESOS = [
-  {tipo:'ingreso', fecha:new Date().toISOString().slice(0,10), categoria:\"Mesada\", desc:\"Semanal\", monto:300},
-  {tipo:'ingreso', fecha:new Date().toISOString().slice(0,10), categoria:\"Chambita/Freelance\", desc:\"Tarea de programación para compañero\", monto:250},
+  {tipo:'ingreso', fecha:new Date().toISOString().slice(0,10), categoria:"Mesada", desc:"Semanal", monto:300},
+  {tipo:'ingreso', fecha:new Date().toISOString().slice(0,10), categoria:"Chambita/Freelance", desc:"Tarea de programación para compañero", monto:250},
 ];
 
 function cargarDatos(){
