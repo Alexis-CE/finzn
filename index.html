@@ -9,10 +9,15 @@
 </head>
 <body>
 <header>
-  <div><h1>💸 ¿En qué se me va la lana?</h1><div class="sub">Ingresos, gastos y consejos con IA</div></div>
+  <div><h1 id="appTitle">💸 ¿En qué se me va la lana?</h1><div class="sub" id="appSub">Ingresos, gastos y consejos con IA</div></div>
   <div class="fileops">
-    <button class="secondary" onclick="exportarJSON()">⬇ Exportar</button>
-    <button class="secondary" onclick="document.getElementById('fileInput').click()">⬆ Importar</button>
+    <div class="lang-switch" id="langSwitch">
+      <span class="lang-indicator" id="langIndicator"></span>
+      <button type="button" class="lang-opt active" data-lang="es" onclick="setIdioma('es')">ES</button>
+      <button type="button" class="lang-opt" data-lang="en" onclick="setIdioma('en')">EN</button>
+    </div>
+    <button class="secondary" id="btnExport" onclick="exportarJSON()">⬇ Exportar</button>
+    <button class="secondary" id="btnImport" onclick="document.getElementById('fileInput').click()">⬆ Importar</button>
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="importarJSON(event)">
   </div>
 </header>
@@ -20,10 +25,10 @@
 <main>
   <!-- DASHBOARD -->
   <div class="stats">
-    <div class="stat accent"><div class="icon">💰</div><div class="label">Balance</div><div class="val" id="statBalance">$0</div></div>
-    <div class="stat pos"><div class="icon">📈</div><div class="label">Ingresos</div><div class="val" id="statIn">$0</div></div>
-    <div class="stat neg"><div class="icon">📉</div><div class="label">Gastos</div><div class="val" id="statOut">$0</div></div>
-    <div class="stat"><div class="icon">🐖</div><div class="label">Tasa de ahorro</div><div class="val" id="statRate">0%</div></div>
+    <div class="stat accent"><div class="icon">💰</div><div class="label" id="lblBalance">Balance</div><div class="val" id="statBalance">$0</div></div>
+    <div class="stat pos"><div class="icon">📈</div><div class="label" id="lblIn">Ingresos</div><div class="val" id="statIn">$0</div></div>
+    <div class="stat neg"><div class="icon">📉</div><div class="label" id="lblOut">Gastos</div><div class="val" id="statOut">$0</div></div>
+    <div class="stat"><div class="icon">🐖</div><div class="label" id="lblRate">Tasa de ahorro</div><div class="val" id="statRate">0%</div></div>
   </div>
 
   <div class="card">
@@ -52,7 +57,7 @@
         <option value="Otro">🔹 Otro</option>
       </select>
       <input type="text" id="descG" placeholder="Descripción (opcional)">
-      <button type="submit">Agregar</button>
+      <button type="submit" id="btnAgregarG">Agregar</button>
     </form>
 
     <form id="formIngreso" style="display:none">
@@ -64,29 +69,29 @@
         <option value="Otro">🔹 Otro</option>
       </select>
       <input type="text" id="descI" placeholder="Descripción (ej. tarea de Python)">
-      <button type="submit">Agregar</button>
+      <button type="submit" id="btnAgregarI">Agregar</button>
     </form>
   </div>
 
   <div class="grid2">
     <div class="card">
-      <div class="toprow"><h2>📋 Movimientos</h2><span class="badge" id="count">0 registros</span></div>
+      <div class="toprow"><h2 id="movTitle">📋 Movimientos</h2><span class="badge" id="count">0 registros</span></div>
       <table>
-        <thead><tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Monto</th><th></th></tr></thead>
+        <thead><tr><th id="thFecha">Fecha</th><th id="thTipo">Categoría</th><th id="thDesc">Descripción</th><th id="thMonto">Monto</th><th></th></tr></thead>
         <tbody id="tbody"></tbody>
       </table>
       <div class="empty" id="emptyState" style="display:none">Todavía no hay movimientos. Agrega tu primer gasto o ingreso arriba ↑</div>
     </div>
     <div class="card">
-      <h2>🍩 Gastos por categoría</h2>
+      <h2 id="chartTitle">🍩 Gastos por categoría</h2>
       <div class="chartwrap"><canvas id="chart"></canvas></div>
     </div>
   </div>
 
   <div class="card">
-    <h2>🤖 Análisis con IA</h2>
-    <p class="badge">La IA revisa tus movimientos y te dice en qué se te va el dinero, si tus ingresos cubren tus gastos y qué podrías ajustar. No sustituye consejo financiero profesional.</p>
-    <button class="ia" onclick="analizar()">Analizar mis finanzas</button>
+    <h2 id="iaTitle">🤖 Análisis con IA</h2>
+    <p class="badge" id="iaBadge">La IA revisa tus movimientos y te dice en qué se te va el dinero, si tus ingresos cubren tus gastos y qué podrías ajustar. No sustituye consejo financiero profesional.</p>
+    <button class="ia" id="btnAnalizar" onclick="analizar()">Analizar mis finanzas</button>
     <div id="iaResult"></div>
   </div>
 </main>
