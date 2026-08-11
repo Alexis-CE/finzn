@@ -31,7 +31,6 @@ Sin backend propio para los datos, sin login, sin base de datos. Todo corre en t
 - HTML / CSS / JavaScript vanilla — sin frameworks, sin build step
 - [Chart.js](https://www.chartjs.org/) para las gráficas
 - [Groq API](https://groq.com/) (`llama-3.3-70b-versatile`) para el análisis con IA, vía un [Cloudflare Worker](https://workers.cloudflare.com/) proxy
-- Hosteado en [Cloudflare Pages](https://pages.cloudflare.com/), conectado a este repo (deploy automático con cada push a `main`)
 
 ### Notas
 
