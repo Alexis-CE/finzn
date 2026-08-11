@@ -278,23 +278,13 @@ function importarJSON(e){
   reader.readAsText(file);
 }
 
-function obtenerApiKey(){
-  let key = localStorage.getItem(API_KEY_STORAGE);
-  if(!key){
-    key = window.prompt(I18N[currentLang].apiKeyPrompt);
-    if(key) localStorage.setItem(API_KEY_STORAGE, key.trim());
-  }
-  return key ? key.trim() : null;
-}
+const WORKER_URL = 'https://finzn-proxy.2020pomelo.workers.dev';
 
 async function analizar(){
   const t = I18N[currentLang];
   const btn = document.getElementById('btnAnalizar');
   const box = document.getElementById('iaResult');
   if(gastos.length === 0 && ingresos.length === 0){ alert(t.alertMovimiento); return; }
-
-  const apiKey = obtenerApiKey();
-  if(!apiKey) return;
 
   btn.disabled = true;
   btn.textContent = t.btnAnalizando;
@@ -307,27 +297,15 @@ async function analizar(){
   const prompt = `Eres un asesor financiero práctico hablando con un adolescente/joven a punto de cumplir 18 años sobre sus finanzas personales (mesada + ingresos por chambitas de programación, sin deudas ni activos complejos). Sus movimientos:\n\nINGRESOS:\n${resumenIngresos || 'Sin ingresos registrados'}\n\nGASTOS:\n${resumenGastos || 'Sin gastos registrados'}\n\n${t.idiomaPrompt} Tono cercano y directo, SIN relleno:\n1. Un resumen corto: ¿sus ingresos cubren sus gastos? ¿en qué se le va más?\n2. 3 patrones o focos rojos que notes (gasto hormiga, suscripciones, dependencia de un solo ingreso, etc).\n3. 3 consejos concretos y accionables, pensando en que está por cumplir 18 y podría empezar a manejar más responsabilidad financiera (cuenta bancaria, ahorro, etc).\nUsa listas, nada de párrafos largos.`;
 
   try{
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch(WORKER_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + apiKey
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        max_tokens: 1000,
-        messages: [{ role: "user", content: prompt }]
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt })
     });
 
     if(!response.ok){
       const errBody = await response.text();
-      if(response.status === 401){
-        localStorage.removeItem(API_KEY_STORAGE);
-        box.textContent = t.apiKeyInvalida;
-      }else{
-        box.textContent = `Error ${response.status}: ${errBody}`;
-      }
+      box.textContent = `Error ${response.status}: ${errBody}`;
       btn.disabled = false;
       btn.textContent = t.btnAnalizar;
       return;
