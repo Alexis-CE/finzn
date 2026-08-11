@@ -76,15 +76,32 @@
   <div class="grid2">
     <div class="card">
       <div class="toprow"><h2 id="movTitle">📋 Movimientos</h2><span class="badge" id="count">0 registros</span></div>
+      <div class="table-scroll">
       <table>
         <thead><tr><th id="thFecha">Fecha</th><th id="thTipo">Categoría</th><th id="thDesc">Descripción</th><th id="thMonto">Monto</th><th></th></tr></thead>
         <tbody id="tbody"></tbody>
       </table>
+      </div>
       <div class="empty" id="emptyState" style="display:none">Todavía no hay movimientos. Agrega tu primer gasto o ingreso arriba ↑</div>
     </div>
     <div class="card">
       <h2 id="chartTitle">🍩 Gastos por categoría</h2>
       <div class="chartwrap"><canvas id="chart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 id="metaTitle">🎯 Meta de ahorro</h2>
+    <form id="formMeta">
+      <input type="text" id="metaNombre" placeholder="¿Para qué? (ej. laptop nueva)">
+      <input type="number" id="metaMonto" placeholder="Monto objetivo" step="0.01">
+      <input type="date" id="metaFecha">
+      <button type="submit" id="btnGuardarMeta">Guardar meta</button>
+    </form>
+    <div id="metaProgreso" style="display:none;margin-top:14px">
+      <div class="meter"><div class="seg" id="metaSeg" style="width:0%;background:var(--mint)"></div></div>
+      <div class="meter-legend"><span id="metaTexto"></span><span id="metaMensual"></span></div>
+      <button class="secondary" id="btnEliminarMeta" style="margin-top:10px">✕ Borrar meta</button>
     </div>
   </div>
 

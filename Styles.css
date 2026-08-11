@@ -74,3 +74,22 @@ tbody tr{animation:rowIn .28s ease}
 .meter .seg{transition:width .35s ease}
 
 @media(max-width:700px){.stats{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}form{grid-template-columns:1fr 1fr}}
+
+.table-scroll{overflow-x:auto}
+
+@media(max-width:480px){
+  header{flex-direction:column;align-items:flex-start;gap:10px;padding:14px 16px}
+  .fileops{width:100%;flex-wrap:wrap;gap:6px}
+  .fileops .secondary{flex:1;font-size:.7rem;padding:8px 4px}
+  h1{font-size:1.05rem;line-height:1.25}
+  .sub{font-size:.7rem}
+  main{padding:14px}
+  .card{padding:14px}
+  .stats{gap:8px}
+  .stat{padding:12px}
+  .stat .val{font-size:1.1rem}
+  .stat .label{font-size:.65rem}
+  table{font-size:.76rem;min-width:480px}
+  th,td{padding:6px 4px}
+  form{grid-template-columns:1fr}
+}

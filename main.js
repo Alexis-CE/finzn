@@ -43,7 +43,14 @@ const I18N = {
     noAnalisis: 'No se pudo generar el análisis.',
     errorConexion: 'Error al conectar con la IA: ',
     archivoInvalido: 'Archivo inválido',
-    idiomaPrompt: 'Responde en español.'
+    idiomaPrompt: 'Responde en español.',
+    metaTitle: '🎯 Meta de ahorro',
+    phMetaNombre: '¿Para qué? (ej. laptop nueva)',
+    phMetaMonto: 'Monto objetivo',
+    btnGuardarMeta: 'Guardar meta',
+    btnEliminarMeta: '✕ Borrar meta',
+    metaLograda: '¡Ya la lograste! 🎉',
+    metaNecesitas: 'Necesitas ahorrar'
   },
   en: {
     title: '💸 Where does my money go?',
@@ -71,13 +78,21 @@ const I18N = {
     noAnalisis: 'Could not generate the analysis.',
     errorConexion: 'Error connecting to the AI: ',
     archivoInvalido: 'Invalid file',
-    idiomaPrompt: 'Answer in English.'
+    idiomaPrompt: 'Answer in English.',
+    metaTitle: '🎯 Savings goal',
+    phMetaNombre: 'What for? (e.g. new laptop)',
+    phMetaMonto: 'Target amount',
+    btnGuardarMeta: 'Save goal',
+    btnEliminarMeta: '✕ Delete goal',
+    metaLograda: 'You reached it! 🎉',
+    metaNecesitas: 'You need to save'
   }
 };
 
 const STORAGE_KEY = 'finanzas_datos_v1';
 const API_KEY_STORAGE = 'finanzas_groq_key';
 const LANG_STORAGE = 'finanzas_lang';
+const GOAL_STORAGE = 'finanzas_meta';
 
 const DEMO_GASTOS = [
   {tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria:"Comida", desc:"Tacos con amigos", monto:120},
@@ -107,6 +122,18 @@ const datosIniciales = cargarDatos();
 let gastos = datosIniciales.gastos;
 let ingresos = datosIniciales.ingresos;
 let currentLang = localStorage.getItem(LANG_STORAGE) || 'es';
+
+function cargarMeta(){
+  try{
+    const raw = localStorage.getItem(GOAL_STORAGE);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function guardarMeta(){
+  if(meta) localStorage.setItem(GOAL_STORAGE, JSON.stringify(meta));
+  else localStorage.removeItem(GOAL_STORAGE);
+}
+let meta = cargarMeta();
 
 let chart;
 
@@ -166,6 +193,11 @@ function aplicarIdioma(){
   document.getElementById('iaTitle').textContent = t.iaTitle;
   document.getElementById('iaBadge').textContent = t.iaBadge;
   document.getElementById('btnAnalizar').textContent = t.btnAnalizar;
+  document.getElementById('metaTitle').textContent = t.metaTitle;
+  document.getElementById('metaNombre').placeholder = t.phMetaNombre;
+  document.getElementById('metaMonto').placeholder = t.phMetaMonto;
+  document.getElementById('btnGuardarMeta').textContent = t.btnGuardarMeta;
+  document.getElementById('btnEliminarMeta').textContent = t.btnEliminarMeta;
 
   document.querySelectorAll('.lang-opt').forEach(b=>b.classList.toggle('active', b.dataset.lang===currentLang));
   document.getElementById('langIndicator').style.transform = currentLang==='en' ? 'translateX(100%)' : 'translateX(0)';
@@ -230,9 +262,53 @@ function render(){
     data:{labels, datasets:[{data, backgroundColor:['#5ee6b8','#ff8b6b','#7aa2ff','#ffd66b','#ff5f6d','#b98bff','#6bd6ff','#c4c4c4','#5ee6b8']}]},
     options:{plugins:{legend:{position:'bottom',labels:{color:'#e8eaed',boxWidth:12,font:{size:10}}}}}
   });
+
+  renderMeta();
 }
 
 function borrar(tipo, i){ (tipo==='gasto'?gastos:ingresos).splice(i,1); render(); }
+
+function renderMeta(){
+  const t = I18N[currentLang];
+  const cont = document.getElementById('metaProgreso');
+  if(!meta){ cont.style.display = 'none'; return; }
+  cont.style.display = 'block';
+
+  const totalIn = ingresos.reduce((s,g)=>s+g.monto,0);
+  const totalOut = gastos.reduce((s,g)=>s+g.monto,0);
+  const balance = totalIn - totalOut;
+  const pct = meta.monto > 0 ? Math.min(100, Math.max(0, (balance/meta.monto)*100)) : 0;
+  document.getElementById('metaSeg').style.width = pct + '%';
+
+  const hoy = new Date();
+  const objetivo = new Date(meta.fecha + 'T00:00:00');
+  const mesesRestantes = Math.max(1, Math.round((objetivo - hoy)/(1000*60*60*24*30)));
+  const faltante = Math.max(0, meta.monto - balance);
+  const mensualNecesario = faltante / mesesRestantes;
+
+  document.getElementById('metaTexto').textContent = `${meta.nombre}: $${balance.toFixed(0)} / $${meta.monto.toFixed(0)} (${pct.toFixed(0)}%)`;
+  document.getElementById('metaMensual').textContent = balance >= meta.monto
+    ? t.metaLograda
+    : `${t.metaNecesitas} $${mensualNecesario.toFixed(0)}/mes`;
+}
+
+document.getElementById('formMeta').addEventListener('submit', e=>{
+  e.preventDefault();
+  const nombre = document.getElementById('metaNombre').value || 'Meta';
+  const monto = parseFloat(document.getElementById('metaMonto').value);
+  const fecha = document.getElementById('metaFecha').value;
+  if(!monto || monto<=0 || !fecha) return;
+  meta = {nombre, monto, fecha};
+  guardarMeta();
+  e.target.reset();
+  renderMeta();
+});
+
+document.getElementById('btnEliminarMeta').addEventListener('click', ()=>{
+  meta = null;
+  guardarMeta();
+  renderMeta();
+});
 
 document.getElementById('formGasto').addEventListener('submit', e=>{
   e.preventDefault();
@@ -293,8 +369,9 @@ async function analizar(){
 
   const resumenGastos = gastos.map(g=>`${g.fecha} | GASTO | ${g.categoria} | ${g.desc||'-'} | $${g.monto}`).join('\n');
   const resumenIngresos = ingresos.map(g=>`${g.fecha} | INGRESO | ${g.categoria} | ${g.desc||'-'} | $${g.monto}`).join('\n');
+  const metaTxt = meta ? `\nMETA DE AHORRO: quiere juntar $${meta.monto} para "${meta.nombre}" antes de ${meta.fecha}.` : '';
 
-  const prompt = `Eres un asesor financiero práctico hablando con un adolescente/joven a punto de cumplir 18 años sobre sus finanzas personales (mesada + ingresos por chambitas de programación, sin deudas ni activos complejos). Sus movimientos:\n\nINGRESOS:\n${resumenIngresos || 'Sin ingresos registrados'}\n\nGASTOS:\n${resumenGastos || 'Sin gastos registrados'}\n\n${t.idiomaPrompt} Tono cercano y directo, SIN relleno:\n1. Un resumen corto: ¿sus ingresos cubren sus gastos? ¿en qué se le va más?\n2. 3 patrones o focos rojos que notes (gasto hormiga, suscripciones, dependencia de un solo ingreso, etc).\n3. 3 consejos concretos y accionables, pensando en que está por cumplir 18 y podría empezar a manejar más responsabilidad financiera (cuenta bancaria, ahorro, etc).\nUsa listas, nada de párrafos largos.`;
+  const prompt = `Eres un asesor financiero práctico hablando con un adolescente/joven a punto de cumplir 18 años sobre sus finanzas personales (mesada + ingresos por chambitas de programación, sin deudas ni activos complejos). Sus movimientos:\n\nINGRESOS:\n${resumenIngresos || 'Sin ingresos registrados'}\n\nGASTOS:\n${resumenGastos || 'Sin gastos registrados'}\n${metaTxt}\n\n${t.idiomaPrompt} Tono cercano y directo, SIN relleno:\n1. Un resumen corto: ¿sus ingresos cubren sus gastos? ¿en qué se le va más?\n2. 3 patrones o focos rojos que notes (gasto hormiga, suscripciones, dependencia de un solo ingreso, etc).\n3. 3 consejos concretos y accionables, pensando en que está por cumplir 18 y podría empezar a manejar más responsabilidad financiera (cuenta bancaria, ahorro, etc). Si hay una meta de ahorro, dile cómo cubrir sus necesidades diarias SIN dejar de ahorrar para llegar a tiempo, y si el ritmo actual alcanza o necesita ajustar algo.\nUsa listas, nada de párrafos largos.`;
 
   try{
     const response = await fetch(WORKER_URL, {
