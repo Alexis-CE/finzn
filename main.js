@@ -20,16 +20,21 @@ const I18N = {
   es: {
     title: '💸 ¿En qué se me va la lana?',
     subtitle: 'Ingresos, gastos y consejos con IA',
-    btnExport: '⬇ Exportar',
-    btnImport: '⬆ Importar',
+    btnExport: '⬇ Exportar', btnExportCSV: '⬇ CSV', btnImport: '⬆ Importar',
     lblBalance: 'Balance', lblIn: 'Ingresos', lblOut: 'Gastos', lblRate: 'Tasa de ahorro',
     tabGasto: '📉 Gasto', tabIngreso: '📈 Ingreso',
     phMonto: 'Monto', phDescG: 'Descripción (opcional)', phDescI: 'Descripción (ej. tarea de Python)',
-    btnAgregar: 'Agregar',
+    btnAgregar: 'Agregar', btnGuardarCambios: 'Guardar cambios', btnCancelarEdicion: 'Cancelar edición',
+    recurLabel: '🔁 Se repite cada mes',
     movTitle: '📋 Movimientos',
     thFecha: 'Fecha', thTipo: 'Categoría', thDesc: 'Descripción', thMonto: 'Monto',
     emptyState: 'Todavía no hay movimientos. Agrega tu primer gasto o ingreso arriba ↑',
+    emptyFiltro: 'Nada coincide con tu búsqueda/filtro.',
+    buscarPlaceholder: '🔍 Buscar en movimientos...',
+    filtroTodos: 'Todos los meses',
+    comparativaTexto: 'vs mes anterior:',
     chartTitle: '🍩 Gastos por categoría',
+    ingresosChartTitle: '📊 Ingresos por fuente',
     iaTitle: '🤖 Análisis con IA',
     iaBadge: 'La IA revisa tus movimientos y te dice en qué se te va el dinero, si tus ingresos cubren tus gastos y qué podrías ajustar. No sustituye consejo financiero profesional.',
     btnAnalizar: 'Analizar mis finanzas',
@@ -37,34 +42,43 @@ const I18N = {
     meterIn: 'Ingresos', meterOut: 'Gastos',
     registros: 'registros',
     alertMovimiento: 'Agrega al menos un movimiento primero',
-    apiKeyPrompt: 'Pega tu API Key de Groq (gratis en console.groq.com/keys).\nSe guarda solo en tu navegador, nunca sale de tu compu:',
-    apiKeyInvalida: 'API Key inválida. La borré de tu navegador — dale click de nuevo a Analizar y pega una válida.',
+    confirmBorrar: '¿Seguro que quieres borrar este movimiento?',
     pensando: 'Pensando...',
     noAnalisis: 'No se pudo generar el análisis.',
     errorConexion: 'Error al conectar con la IA: ',
     archivoInvalido: 'Archivo inválido',
-    idiomaPrompt: 'Responde en español.',
     metaTitle: '🎯 Meta de ahorro',
     phMetaNombre: '¿Para qué? (ej. laptop nueva)',
     phMetaMonto: 'Monto objetivo',
     btnGuardarMeta: 'Guardar meta',
     btnEliminarMeta: '✕ Borrar meta',
     metaLograda: '¡Ya la lograste! 🎉',
-    metaNecesitas: 'Necesitas ahorrar'
+    metaNecesitas: 'Necesitas ahorrar',
+    metaFechaPasada: 'Esa fecha ya pasó, elige una fecha futura.',
+    presupuestoTitle: '🚦 Presupuesto por categoría',
+    phPresupuestoMonto: 'Límite mensual',
+    btnGuardarPresupuesto: 'Guardar límite',
+    presupuestoVacio: 'Aún no has puesto límites. Agrega uno arriba.',
+    presupuestoDe: 'de'
   },
   en: {
     title: '💸 Where does my money go?',
     subtitle: 'Income, expenses and AI advice',
-    btnExport: '⬇ Export',
-    btnImport: '⬆ Import',
+    btnExport: '⬇ Export', btnExportCSV: '⬇ CSV', btnImport: '⬆ Import',
     lblBalance: 'Balance', lblIn: 'Income', lblOut: 'Expenses', lblRate: 'Savings rate',
     tabGasto: '📉 Expense', tabIngreso: '📈 Income',
     phMonto: 'Amount', phDescG: 'Description (optional)', phDescI: 'Description (e.g. Python homework)',
-    btnAgregar: 'Add',
+    btnAgregar: 'Add', btnGuardarCambios: 'Save changes', btnCancelarEdicion: 'Cancel edit',
+    recurLabel: '🔁 Repeats monthly',
     movTitle: '📋 Transactions',
     thFecha: 'Date', thTipo: 'Category', thDesc: 'Description', thMonto: 'Amount',
     emptyState: 'No transactions yet. Add your first expense or income above ↑',
+    emptyFiltro: 'Nothing matches your search/filter.',
+    buscarPlaceholder: '🔍 Search transactions...',
+    filtroTodos: 'All months',
+    comparativaTexto: 'vs last month:',
     chartTitle: '🍩 Expenses by category',
+    ingresosChartTitle: '📊 Income by source',
     iaTitle: '🤖 AI analysis',
     iaBadge: 'The AI reviews your transactions and tells you where your money is going, whether your income covers your expenses, and what you could adjust. Not a substitute for professional financial advice.',
     btnAnalizar: 'Analyze my finances',
@@ -72,43 +86,61 @@ const I18N = {
     meterIn: 'Income', meterOut: 'Expenses',
     registros: 'records',
     alertMovimiento: 'Add at least one transaction first',
-    apiKeyPrompt: 'Paste your Groq API Key (free at console.groq.com/keys).\nIt\'s saved only in your browser, it never leaves your computer:',
-    apiKeyInvalida: 'Invalid API Key. I removed it from your browser — click Analyze again and paste a valid one.',
+    confirmBorrar: 'Delete this transaction?',
     pensando: 'Thinking...',
     noAnalisis: 'Could not generate the analysis.',
     errorConexion: 'Error connecting to the AI: ',
     archivoInvalido: 'Invalid file',
-    idiomaPrompt: 'Answer in English.',
     metaTitle: '🎯 Savings goal',
     phMetaNombre: 'What for? (e.g. new laptop)',
     phMetaMonto: 'Target amount',
     btnGuardarMeta: 'Save goal',
     btnEliminarMeta: '✕ Delete goal',
     metaLograda: 'You reached it! 🎉',
-    metaNecesitas: 'You need to save'
+    metaNecesitas: 'You need to save',
+    metaFechaPasada: 'That date already passed, pick a future date.',
+    presupuestoTitle: '🚦 Budget by category',
+    phPresupuestoMonto: 'Monthly limit',
+    btnGuardarPresupuesto: 'Save limit',
+    presupuestoVacio: 'No limits set yet. Add one above.',
+    presupuestoDe: 'of'
   }
 };
 
 const STORAGE_KEY = 'finanzas_datos_v1';
-const API_KEY_STORAGE = 'finanzas_groq_key';
 const LANG_STORAGE = 'finanzas_lang';
 const GOAL_STORAGE = 'finanzas_meta';
+const BUDGET_STORAGE = 'finanzas_presupuestos';
+const WORKER_URL = 'https://finzn-proxy.2020pomelo.workers.dev';
+
+function genId(){
+  return (crypto.randomUUID ? crypto.randomUUID() : 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2));
+}
 
 const DEMO_GASTOS = [
-  {tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria:"Comida", desc:"Tacos con amigos", monto:120},
-  {tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria:"Suscripciones", desc:"Spotify", monto:115},
+  {id:genId(), tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria:"Comida", desc:"Tacos con amigos", monto:120, recurrente:false},
+  {id:genId(), tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria:"Suscripciones", desc:"Spotify", monto:115, recurrente:true},
+  {id:genId(), tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria:"Videojuegos/Apps", desc:"Skin de juego", monto:200, recurrente:false},
+];
+const DEMO_INGRESOS = [
+  {id:genId(), tipo:'ingreso', fecha:new Date().toISOString().slice(0,10), categoria:"Mesada", desc:"Semanal", monto:300, recurrente:true},
+  {id:genId(), tipo:'ingreso', fecha:new Date().toISOString().slice(0,10), categoria:"Chambita/Freelance", desc:"Tarea de programación para compañero", monto:250, recurrente:false},
 ];
 
-const DEMO_INGRESOS = [
-  {tipo:'ingreso', fecha:new Date().toISOString().slice(0,10), categoria:"Mesada", desc:"Semanal", monto:300},
-];
+function migrar(arr){
+  arr.forEach(m=>{
+    if(!m.id) m.id = genId();
+    if(m.recurrente === undefined) m.recurrente = false;
+  });
+  return arr;
+}
 
 function cargarDatos(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw){
       const data = JSON.parse(raw);
-      return {gastos: data.gastos || [], ingresos: data.ingresos || []};
+      return {gastos: migrar(data.gastos || []), ingresos: migrar(data.ingresos || [])};
     }
   }catch(e){}
   return {gastos: DEMO_GASTOS, ingresos: DEMO_INGRESOS};
@@ -117,11 +149,6 @@ function cargarDatos(){
 function guardarDatos(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify({gastos, ingresos}));
 }
-
-const datosIniciales = cargarDatos();
-let gastos = datosIniciales.gastos;
-let ingresos = datosIniciales.ingresos;
-let currentLang = localStorage.getItem(LANG_STORAGE) || 'es';
 
 function cargarMeta(){
   try{
@@ -133,9 +160,48 @@ function guardarMeta(){
   if(meta) localStorage.setItem(GOAL_STORAGE, JSON.stringify(meta));
   else localStorage.removeItem(GOAL_STORAGE);
 }
-let meta = cargarMeta();
 
-let chart;
+function cargarPresupuestos(){
+  try{
+    const raw = localStorage.getItem(BUDGET_STORAGE);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){ return {}; }
+}
+function guardarPresupuestos(){
+  localStorage.setItem(BUDGET_STORAGE, JSON.stringify(presupuestos));
+}
+
+const datosIniciales = cargarDatos();
+let gastos = datosIniciales.gastos;
+let ingresos = datosIniciales.ingresos;
+let currentLang = localStorage.getItem(LANG_STORAGE) || 'es';
+let meta = cargarMeta();
+let presupuestos = cargarPresupuestos();
+let editando = null; // {tipo, id}
+let sortField = null, sortDir = 1;
+
+let chart, chartIngresos;
+
+function procesarRecurrentes(){
+  const hoyMes = new Date().toISOString().slice(0,7);
+  [gastos, ingresos].forEach(arr=>{
+    const ultimaOcurrencia = {};
+    arr.forEach(m=>{
+      if(!m.recurrente) return;
+      const key = m.tipo + '|' + m.categoria + '|' + (m.desc||'');
+      const mes = m.fecha.slice(0,7);
+      if(!ultimaOcurrencia[key] || ultimaOcurrencia[key].mes < mes){
+        ultimaOcurrencia[key] = {mes, item:m};
+      }
+    });
+    Object.values(ultimaOcurrencia).forEach(({mes, item})=>{
+      if(mes < hoyMes){
+        arr.push({...item, id: genId(), fecha: hoyMes + '-01'});
+      }
+    });
+  });
+}
+procesarRecurrentes();
 
 function switchTab(t){
   document.getElementById('tabGasto').classList.toggle('active', t==='gasto');
@@ -146,12 +212,13 @@ function switchTab(t){
 
 function pop(el){
   el.classList.remove('pop');
-  void el.offsetWidth; // reinicia la animación
+  void el.offsetWidth;
   el.classList.add('pop');
 }
 
 function traducirSelect(id){
   const select = document.getElementById(id);
+  if(!select) return;
   [...select.options].forEach(opt=>{
     const label = CATEGORY_LABELS[opt.value] ? CATEGORY_LABELS[opt.value][currentLang] : opt.value;
     opt.textContent = (ICONS[opt.value]||'') + ' ' + label;
@@ -170,6 +237,7 @@ function aplicarIdioma(){
   document.getElementById('appTitle').textContent = t.title;
   document.getElementById('appSub').textContent = t.subtitle;
   document.getElementById('btnExport').textContent = t.btnExport;
+  document.getElementById('btnExportCSV').textContent = t.btnExportCSV;
   document.getElementById('btnImport').textContent = t.btnImport;
   document.getElementById('lblBalance').textContent = t.lblBalance;
   document.getElementById('lblIn').textContent = t.lblIn;
@@ -181,15 +249,19 @@ function aplicarIdioma(){
   document.getElementById('montoI').placeholder = t.phMonto;
   document.getElementById('descG').placeholder = t.phDescG;
   document.getElementById('descI').placeholder = t.phDescI;
-  document.getElementById('btnAgregarG').textContent = t.btnAgregar;
-  document.getElementById('btnAgregarI').textContent = t.btnAgregar;
+  document.getElementById('btnAgregarG').textContent = editando && editando.tipo==='gasto' ? t.btnGuardarCambios : t.btnAgregar;
+  document.getElementById('btnAgregarI').textContent = editando && editando.tipo==='ingreso' ? t.btnGuardarCambios : t.btnAgregar;
+  document.getElementById('cancelEdit').textContent = t.btnCancelarEdicion;
+  document.getElementById('recurLabelG').textContent = t.recurLabel;
+  document.getElementById('recurLabelI').textContent = t.recurLabel;
   document.getElementById('movTitle').textContent = t.movTitle;
   document.getElementById('thFecha').textContent = t.thFecha;
   document.getElementById('thTipo').textContent = t.thTipo;
   document.getElementById('thDesc').textContent = t.thDesc;
   document.getElementById('thMonto').textContent = t.thMonto;
-  document.getElementById('emptyState').textContent = t.emptyState;
+  document.getElementById('buscador').placeholder = t.buscarPlaceholder;
   document.getElementById('chartTitle').textContent = t.chartTitle;
+  document.getElementById('ingresosChartTitle').textContent = t.ingresosChartTitle;
   document.getElementById('iaTitle').textContent = t.iaTitle;
   document.getElementById('iaBadge').textContent = t.iaBadge;
   document.getElementById('btnAnalizar').textContent = t.btnAnalizar;
@@ -198,33 +270,107 @@ function aplicarIdioma(){
   document.getElementById('metaMonto').placeholder = t.phMetaMonto;
   document.getElementById('btnGuardarMeta').textContent = t.btnGuardarMeta;
   document.getElementById('btnEliminarMeta').textContent = t.btnEliminarMeta;
+  document.getElementById('presupuestoTitle').textContent = t.presupuestoTitle;
+  document.getElementById('presMonto').placeholder = t.phPresupuestoMonto;
+  document.getElementById('btnGuardarPresupuesto').textContent = t.btnGuardarPresupuesto;
 
   document.querySelectorAll('.lang-opt').forEach(b=>b.classList.toggle('active', b.dataset.lang===currentLang));
   document.getElementById('langIndicator').style.transform = currentLang==='en' ? 'translateX(100%)' : 'translateX(0)';
 
   traducirSelect('categoria');
   traducirSelect('fuente');
+  traducirSelect('presCategoria');
 
   render();
+}
+
+function ordenarPor(campo){
+  if(sortField===campo) sortDir = -sortDir; else { sortField = campo; sortDir = 1; }
+  render();
+}
+
+function poblarFiltroMes(){
+  const sel = document.getElementById('filtroMes');
+  const t = I18N[currentLang];
+  const mesesSet = new Set([...gastos, ...ingresos].map(m=>m.fecha.slice(0,7)));
+  const meses = [...mesesSet].sort().reverse();
+  const val = sel.value || 'todos';
+  sel.innerHTML = `<option value="todos">${t.filtroTodos}</option>` + meses.map(m=>`<option value="${m}">${m}</option>`).join('');
+  sel.value = (val === 'todos' || meses.includes(val)) ? val : 'todos';
+}
+
+function poblarDatalists(){
+  const descsG = [...new Set(gastos.map(g=>g.desc).filter(Boolean))];
+  const descsI = [...new Set(ingresos.map(g=>g.desc).filter(Boolean))];
+  document.getElementById('descListG').innerHTML = descsG.map(d=>`<option value="${d.replace(/"/g,'&quot;')}">`).join('');
+  document.getElementById('descListI').innerHTML = descsI.map(d=>`<option value="${d.replace(/"/g,'&quot;')}">`).join('');
+}
+
+function calcularComparativa(){
+  const t = I18N[currentLang];
+  const hoy = new Date();
+  const mesActual = hoy.toISOString().slice(0,7);
+  const mesAnteriorDate = new Date(hoy.getFullYear(), hoy.getMonth()-1, 1);
+  const mesAnterior = mesAnteriorDate.toISOString().slice(0,7);
+  const gastoMesActual = gastos.filter(g=>g.fecha.slice(0,7)===mesActual).reduce((s,g)=>s+g.monto,0);
+  const gastoMesAnterior = gastos.filter(g=>g.fecha.slice(0,7)===mesAnterior).reduce((s,g)=>s+g.monto,0);
+  const el = document.getElementById('comparativa');
+  if(gastoMesAnterior === 0 || gastoMesActual === 0){ el.textContent = ''; return; }
+  const delta = ((gastoMesActual-gastoMesAnterior)/gastoMesAnterior*100);
+  const signo = delta >= 0 ? '+' : '';
+  el.textContent = `${t.comparativaTexto} ${signo}${delta.toFixed(0)}% ${I18N[currentLang]===I18N.es?'en gastos':'in spending'}`;
+  el.style.color = delta > 0 ? 'var(--danger)' : 'var(--mint)';
 }
 
 function render(){
   guardarDatos();
   const t = I18N[currentLang];
-  const todos = [...gastos, ...ingresos].sort((a,b)=> a.fecha < b.fecha ? 1 : -1);
+
+  poblarFiltroMes();
+  poblarDatalists();
+
+  const mesFiltro = document.getElementById('filtroMes').value;
+  const busqueda = document.getElementById('buscador').value.trim().toLowerCase();
+
+  let todos = [...gastos, ...ingresos];
+
+  if(mesFiltro && mesFiltro !== 'todos'){
+    todos = todos.filter(m=>m.fecha.slice(0,7) === mesFiltro);
+  }
+  if(busqueda){
+    todos = todos.filter(m=>{
+      const catLabel = (CATEGORY_LABELS[m.categoria] ? CATEGORY_LABELS[m.categoria][currentLang] : m.categoria).toLowerCase();
+      return catLabel.includes(busqueda) || (m.desc||'').toLowerCase().includes(busqueda);
+    });
+  }
+  if(sortField === 'fecha'){
+    todos.sort((a,b)=> a.fecha < b.fecha ? -sortDir : a.fecha > b.fecha ? sortDir : 0);
+  }else if(sortField === 'monto'){
+    todos.sort((a,b)=> (a.monto - b.monto) * sortDir);
+  }else{
+    todos.sort((a,b)=> a.fecha < b.fecha ? 1 : -1);
+  }
+
   const tbody = document.getElementById('tbody');
   tbody.innerHTML = '';
-  document.getElementById('emptyState').style.display = todos.length ? 'none' : 'block';
+  const emptyEl = document.getElementById('emptyState');
+  if(todos.length === 0){
+    emptyEl.style.display = 'block';
+    emptyEl.textContent = (busqueda || (mesFiltro && mesFiltro !== 'todos')) ? t.emptyFiltro : t.emptyState;
+  }else{
+    emptyEl.style.display = 'none';
+  }
 
   todos.forEach(m=>{
     const tr = document.createElement('tr');
     const isGasto = m.tipo === 'gasto';
     const catLabel = CATEGORY_LABELS[m.categoria] ? CATEGORY_LABELS[m.categoria][currentLang] : m.categoria;
+    const recurTag = m.recurrente ? ' 🔁' : '';
     tr.innerHTML = `<td data-label="${t.thFecha}">${m.fecha}</td>
       <td data-label="${t.thTipo}"><span class="chip">${ICONS[m.categoria]||'🔹'} ${catLabel}</span></td>
-      <td data-label="${t.thDesc}">${m.desc||'—'}</td>
+      <td data-label="${t.thDesc}">${(m.desc||'—')}${recurTag}</td>
       <td data-label="${t.thMonto}" class="${isGasto?'amt-out':'amt-in'}">${isGasto?'-':'+'}$${m.monto.toFixed(2)}</td>
-      <td><button class="del" onclick="borrar('${m.tipo}', ${(isGasto?gastos:ingresos).indexOf(m)})">✕</button></td>`;
+      <td><button class="edit" onclick="editar('${m.id}')">✎</button><button class="del" onclick="borrar('${m.tipo}', '${m.id}')">✕</button></td>`;
     tbody.appendChild(tr);
   });
   document.getElementById('count').textContent = todos.length + ' ' + t.registros;
@@ -250,23 +396,35 @@ function render(){
     `<div class="seg" style="width:${pctIn}%;background:var(--mint)"></div><div class="seg" style="width:${100-pctIn}%;background:var(--coral)"></div>`;
   document.getElementById('meterInTxt').textContent = t.meterIn + ' $' + totalIn.toFixed(0);
   document.getElementById('meterOutTxt').textContent = t.meterOut + ' $' + totalOut.toFixed(0);
+  calcularComparativa();
 
   const porCat = {};
   gastos.forEach(g=>porCat[g.categoria]=(porCat[g.categoria]||0)+g.monto);
-  const labels = Object.keys(porCat).map(k => (ICONS[k]||'') + ' ' + (CATEGORY_LABELS[k] ? CATEGORY_LABELS[k][currentLang] : k));
-  const data = Object.values(porCat);
+  const labelsG = Object.keys(porCat).map(k => (ICONS[k]||'') + ' ' + (CATEGORY_LABELS[k] ? CATEGORY_LABELS[k][currentLang] : k));
+  const dataG = Object.values(porCat);
 
   if(chart) chart.destroy();
   chart = new Chart(document.getElementById('chart'), {
     type:'doughnut',
-    data:{labels, datasets:[{data, backgroundColor:['#5ee6b8','#ff8b6b','#7aa2ff','#ffd66b','#ff5f6d','#b98bff','#6bd6ff','#c4c4c4','#5ee6b8']}]},
+    data:{labels:labelsG, datasets:[{data:dataG, backgroundColor:['#5ee6b8','#ff8b6b','#7aa2ff','#ffd66b','#ff5f6d','#b98bff','#6bd6ff','#c4c4c4','#5ee6b8']}]},
+    options:{plugins:{legend:{position:'bottom',labels:{color:'#e8eaed',boxWidth:12,font:{size:10}}}}}
+  });
+
+  const porFuente = {};
+  ingresos.forEach(g=>porFuente[g.categoria]=(porFuente[g.categoria]||0)+g.monto);
+  const labelsI = Object.keys(porFuente).map(k => (ICONS[k]||'') + ' ' + (CATEGORY_LABELS[k] ? CATEGORY_LABELS[k][currentLang] : k));
+  const dataI = Object.values(porFuente);
+
+  if(chartIngresos) chartIngresos.destroy();
+  chartIngresos = new Chart(document.getElementById('chartIngresos'), {
+    type:'doughnut',
+    data:{labels:labelsI, datasets:[{data:dataI, backgroundColor:['#5ee6b8','#7aa2ff','#ffd66b','#ff8b6b','#b98bff']}]},
     options:{plugins:{legend:{position:'bottom',labels:{color:'#e8eaed',boxWidth:12,font:{size:10}}}}}
   });
 
   renderMeta();
+  renderPresupuestos();
 }
-
-function borrar(tipo, i){ (tipo==='gasto'?gastos:ingresos).splice(i,1); render(); }
 
 function renderMeta(){
   const t = I18N[currentLang];
@@ -292,12 +450,133 @@ function renderMeta(){
     : `${t.metaNecesitas} $${mensualNecesario.toFixed(0)}/mes`;
 }
 
+function renderPresupuestos(){
+  const t = I18N[currentLang];
+  const cont = document.getElementById('presupuestoLista');
+  const cats = Object.keys(presupuestos);
+  if(cats.length === 0){
+    cont.innerHTML = `<p class="badge">${t.presupuestoVacio}</p>`;
+    return;
+  }
+  const mesActual = new Date().toISOString().slice(0,7);
+  cont.innerHTML = cats.map(cat=>{
+    const limite = presupuestos[cat];
+    const gastado = gastos.filter(g=>g.categoria===cat && g.fecha.slice(0,7)===mesActual).reduce((s,g)=>s+g.monto,0);
+    const pct = limite > 0 ? Math.min(100, (gastado/limite)*100) : 0;
+    const color = pct < 70 ? 'green' : pct < 100 ? 'yellow' : 'red';
+    const barColor = pct < 70 ? 'var(--mint)' : pct < 100 ? 'var(--gold)' : 'var(--danger)';
+    const catLabel = CATEGORY_LABELS[cat] ? CATEGORY_LABELS[cat][currentLang] : cat;
+    return `<div class="pres-row">
+      <div class="pres-dot ${color}"></div>
+      <div class="pres-info">
+        <div class="cat">${ICONS[cat]||''} ${catLabel}</div>
+        <div class="bar"><div class="fill" style="width:${pct}%;background:${barColor}"></div></div>
+      </div>
+      <div class="pres-nums">$${gastado.toFixed(0)} ${t.presupuestoDe} $${limite.toFixed(0)}</div>
+      <button class="pres-del" onclick="borrarPresupuesto('${cat}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function borrarPresupuesto(cat){
+  delete presupuestos[cat];
+  guardarPresupuestos();
+  renderPresupuestos();
+}
+
+function borrar(tipo, id){
+  if(!window.confirm(I18N[currentLang].confirmBorrar)) return;
+  const arr = tipo==='gasto' ? gastos : ingresos;
+  const idx = arr.findIndex(m=>m.id===id);
+  if(idx>-1) arr.splice(idx,1);
+  if(editando && editando.id===id) cancelarEdicion();
+  render();
+}
+
+function editar(id){
+  let item = gastos.find(m=>m.id===id);
+  let tipo = 'gasto';
+  if(!item){ item = ingresos.find(m=>m.id===id); tipo = 'ingreso'; }
+  if(!item) return;
+
+  editando = {tipo, id};
+  switchTab(tipo);
+
+  if(tipo === 'gasto'){
+    document.getElementById('montoG').value = item.monto;
+    document.getElementById('categoria').value = item.categoria;
+    document.getElementById('descG').value = item.desc || '';
+    document.getElementById('recurG').checked = !!item.recurrente;
+  }else{
+    document.getElementById('montoI').value = item.monto;
+    document.getElementById('fuente').value = item.categoria;
+    document.getElementById('descI').value = item.desc || '';
+    document.getElementById('recurI').checked = !!item.recurrente;
+  }
+  document.getElementById('cancelEdit').style.display = 'inline-block';
+  aplicarIdioma();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function cancelarEdicion(){
+  editando = null;
+  document.getElementById('formGasto').reset();
+  document.getElementById('formIngreso').reset();
+  document.getElementById('cancelEdit').style.display = 'none';
+  aplicarIdioma();
+}
+
+document.getElementById('formGasto').addEventListener('submit', e=>{
+  e.preventDefault();
+  const monto = parseFloat(document.getElementById('montoG').value);
+  const categoria = document.getElementById('categoria').value;
+  const desc = document.getElementById('descG').value;
+  const recurrente = document.getElementById('recurG').checked;
+  if(!monto || monto<=0 || !isFinite(monto)) return;
+
+  if(editando && editando.tipo==='gasto'){
+    const item = gastos.find(m=>m.id===editando.id);
+    if(item){ item.monto = monto; item.categoria = categoria; item.desc = desc; item.recurrente = recurrente; }
+    editando = null;
+    document.getElementById('cancelEdit').style.display = 'none';
+  }else{
+    gastos.push({id:genId(), tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria, desc, monto, recurrente});
+  }
+  e.target.reset();
+  aplicarIdioma();
+});
+
+document.getElementById('formIngreso').addEventListener('submit', e=>{
+  e.preventDefault();
+  const monto = parseFloat(document.getElementById('montoI').value);
+  const categoria = document.getElementById('fuente').value;
+  const desc = document.getElementById('descI').value;
+  const recurrente = document.getElementById('recurI').checked;
+  if(!monto || monto<=0 || !isFinite(monto)) return;
+
+  if(editando && editando.tipo==='ingreso'){
+    const item = ingresos.find(m=>m.id===editando.id);
+    if(item){ item.monto = monto; item.categoria = categoria; item.desc = desc; item.recurrente = recurrente; }
+    editando = null;
+    document.getElementById('cancelEdit').style.display = 'none';
+  }else{
+    ingresos.push({id:genId(), tipo:'ingreso', fecha:new Date().toISOString().slice(0,10), categoria, desc, monto, recurrente});
+  }
+  e.target.reset();
+  aplicarIdioma();
+});
+
+document.getElementById('buscador').addEventListener('input', render);
+document.getElementById('filtroMes').addEventListener('change', render);
+
 document.getElementById('formMeta').addEventListener('submit', e=>{
   e.preventDefault();
+  const t = I18N[currentLang];
   const nombre = document.getElementById('metaNombre').value || 'Meta';
   const monto = parseFloat(document.getElementById('metaMonto').value);
   const fecha = document.getElementById('metaFecha').value;
   if(!monto || monto<=0 || !fecha) return;
+  if(fecha < new Date().toISOString().slice(0,10)){ alert(t.metaFechaPasada); return; }
   meta = {nombre, monto, fecha};
   guardarMeta();
   e.target.reset();
@@ -310,33 +589,36 @@ document.getElementById('btnEliminarMeta').addEventListener('click', ()=>{
   renderMeta();
 });
 
-document.getElementById('formGasto').addEventListener('submit', e=>{
+document.getElementById('formPresupuesto').addEventListener('submit', e=>{
   e.preventDefault();
-  const monto = parseFloat(document.getElementById('montoG').value);
-  const categoria = document.getElementById('categoria').value;
-  const desc = document.getElementById('descG').value;
+  const cat = document.getElementById('presCategoria').value;
+  const monto = parseFloat(document.getElementById('presMonto').value);
   if(!monto || monto<=0) return;
-  gastos.push({tipo:'gasto', fecha:new Date().toISOString().slice(0,10), categoria, desc, monto});
+  presupuestos[cat] = monto;
+  guardarPresupuestos();
   e.target.reset();
-  render();
-});
-
-document.getElementById('formIngreso').addEventListener('submit', e=>{
-  e.preventDefault();
-  const monto = parseFloat(document.getElementById('montoI').value);
-  const categoria = document.getElementById('fuente').value;
-  const desc = document.getElementById('descI').value;
-  if(!monto || monto<=0) return;
-  ingresos.push({tipo:'ingreso', fecha:new Date().toISOString().slice(0,10), categoria, desc, monto});
-  e.target.reset();
-  render();
+  renderPresupuestos();
 });
 
 function exportarJSON(){
-  const blob = new Blob([JSON.stringify({gastos, ingresos},null,2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({gastos, ingresos, meta, presupuestos}, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'mis_finanzas.json';
+  a.click();
+}
+
+function exportarCSV(){
+  const todos = [...gastos, ...ingresos].sort((a,b)=> a.fecha < b.fecha ? -1 : 1);
+  let csv = 'Fecha,Tipo,Categoria,Descripcion,Monto\n';
+  todos.forEach(m=>{
+    const desc = (m.desc||'').replace(/"/g,'""');
+    csv += `${m.fecha},${m.tipo},${m.categoria},"${desc}",${m.monto}\n`;
+  });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'finzn_movimientos.csv';
   a.click();
 }
 
@@ -347,14 +629,69 @@ function importarJSON(e){
   reader.onload = ev=>{
     try{
       const data = JSON.parse(ev.target.result);
-      if(data.gastos && data.ingresos){ gastos = data.gastos; ingresos = data.ingresos; render(); }
-      else if(Array.isArray(data)){ gastos = data; render(); } // compat con export viejo
+      if(data.gastos && data.ingresos){
+        gastos = migrar(data.gastos);
+        ingresos = migrar(data.ingresos);
+        meta = data.meta || null;
+        presupuestos = data.presupuestos || {};
+        guardarMeta();
+        guardarPresupuestos();
+        render();
+      }else if(Array.isArray(data)){
+        gastos = migrar(data);
+        render();
+      }
     }catch(err){ alert(I18N[currentLang].archivoInvalido); }
   };
   reader.readAsText(file);
 }
 
-const WORKER_URL = 'https://finzn-proxy.2020pomelo.workers.dev';
+function construirPrompt(){
+  const lang = currentLang;
+  const catLabel = c => CATEGORY_LABELS[c] ? CATEGORY_LABELS[c][lang] : c;
+  const tipoGasto = lang === 'es' ? 'GASTO' : 'EXPENSE';
+  const tipoIngreso = lang === 'es' ? 'INGRESO' : 'INCOME';
+  const resumenGastos = gastos.map(g=>`${g.fecha} | ${tipoGasto} | ${catLabel(g.categoria)} | ${g.desc||'-'} | $${g.monto}`).join('\n');
+  const resumenIngresos = ingresos.map(g=>`${g.fecha} | ${tipoIngreso} | ${catLabel(g.categoria)} | ${g.desc||'-'} | $${g.monto}`).join('\n');
+
+  const metaTxt = meta
+    ? (lang === 'es'
+        ? `\nMETA DE AHORRO: quiere juntar $${meta.monto} para "${meta.nombre}" antes de ${meta.fecha}.`
+        : `\nSAVINGS GOAL: wants to save $${meta.monto} for "${meta.nombre}" by ${meta.fecha}.`)
+    : '';
+
+  if(lang === 'en'){
+    return `You are a practical financial advisor talking to a teen/young adult about to turn 18, about their personal finances (allowance + income from small coding gigs, no debts or complex assets). Their transactions:
+
+INCOME:
+${resumenIngresos || 'No income recorded'}
+
+EXPENSES:
+${resumenGastos || 'No expenses recorded'}
+${metaTxt}
+
+Answer in English. Close, direct tone, NO filler:
+1. A short summary: does their income cover their expenses? where does most of it go?
+2. 3 patterns or red flags you notice (small recurring spending, subscriptions, relying on a single income source, etc).
+3. 3 concrete, actionable tips, considering they're about to turn 18 and could start handling more financial responsibility (bank account, savings, etc). If there's a savings goal, tell them how to cover daily needs WITHOUT giving up on saving to hit it on time, and whether their current pace is enough or needs adjusting.
+Use lists, no long paragraphs.`;
+  }
+
+  return `Eres un asesor financiero práctico hablando con un adolescente/joven a punto de cumplir 18 años sobre sus finanzas personales (mesada + ingresos por chambitas de programación, sin deudas ni activos complejos). Sus movimientos:
+
+INGRESOS:
+${resumenIngresos || 'Sin ingresos registrados'}
+
+GASTOS:
+${resumenGastos || 'Sin gastos registrados'}
+${metaTxt}
+
+Responde en español. Tono cercano y directo, SIN relleno:
+1. Un resumen corto: ¿sus ingresos cubren sus gastos? ¿en qué se le va más?
+2. 3 patrones o focos rojos que notes (gasto hormiga, suscripciones, dependencia de un solo ingreso, etc).
+3. 3 consejos concretos y accionables, pensando en que está por cumplir 18 y podría empezar a manejar más responsabilidad financiera (cuenta bancaria, ahorro, etc). Si hay una meta de ahorro, dile cómo cubrir sus necesidades diarias SIN dejar de ahorrar para llegar a tiempo, y si el ritmo actual alcanza o necesita ajustar algo.
+Usa listas, nada de párrafos largos.`;
+}
 
 async function analizar(){
   const t = I18N[currentLang];
@@ -367,11 +704,7 @@ async function analizar(){
   box.style.display = 'block';
   box.textContent = t.pensando;
 
-  const resumenGastos = gastos.map(g=>`${g.fecha} | GASTO | ${g.categoria} | ${g.desc||'-'} | $${g.monto}`).join('\n');
-  const resumenIngresos = ingresos.map(g=>`${g.fecha} | INGRESO | ${g.categoria} | ${g.desc||'-'} | $${g.monto}`).join('\n');
-  const metaTxt = meta ? `\nMETA DE AHORRO: quiere juntar $${meta.monto} para "${meta.nombre}" antes de ${meta.fecha}.` : '';
-
-  const prompt = `Eres un asesor financiero práctico hablando con un adolescente/joven a punto de cumplir 18 años sobre sus finanzas personales (mesada + ingresos por chambitas de programación, sin deudas ni activos complejos). Sus movimientos:\n\nINGRESOS:\n${resumenIngresos || 'Sin ingresos registrados'}\n\nGASTOS:\n${resumenGastos || 'Sin gastos registrados'}\n${metaTxt}\n\n${t.idiomaPrompt} Tono cercano y directo, SIN relleno:\n1. Un resumen corto: ¿sus ingresos cubren sus gastos? ¿en qué se le va más?\n2. 3 patrones o focos rojos que notes (gasto hormiga, suscripciones, dependencia de un solo ingreso, etc).\n3. 3 consejos concretos y accionables, pensando en que está por cumplir 18 y podría empezar a manejar más responsabilidad financiera (cuenta bancaria, ahorro, etc). Si hay una meta de ahorro, dile cómo cubrir sus necesidades diarias SIN dejar de ahorrar para llegar a tiempo, y si el ritmo actual alcanza o necesita ajustar algo.\nUsa listas, nada de párrafos largos.`;
+  const prompt = construirPrompt();
 
   try{
     const response = await fetch(WORKER_URL, {
@@ -397,5 +730,7 @@ async function analizar(){
   btn.disabled = false;
   btn.textContent = t.btnAnalizar;
 }
+
+document.getElementById('metaFecha').min = new Date().toISOString().slice(0,10);
 
 aplicarIdioma();
