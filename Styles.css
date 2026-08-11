@@ -93,3 +93,15 @@ tbody tr{animation:rowIn .28s ease}
   th,td{padding:6px 4px}
   form{grid-template-columns:1fr}
 }
+
+@media(max-width:600px){
+  .table-scroll{overflow-x:visible}
+  table{display:block;min-width:0}
+  thead{display:none}
+  tbody{display:block}
+  tbody tr{display:block;background:var(--panel2);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+  tbody td{display:flex;justify-content:space-between;align-items:center;border:none;padding:5px 0;font-size:.82rem;gap:10px}
+  tbody td::before{content:attr(data-label);color:var(--dim);font-size:.66rem;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0}
+  tbody td:last-child{justify-content:flex-end}
+  tbody td:last-child::before{content:''}
+}

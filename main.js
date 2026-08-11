@@ -220,10 +220,10 @@ function render(){
     const tr = document.createElement('tr');
     const isGasto = m.tipo === 'gasto';
     const catLabel = CATEGORY_LABELS[m.categoria] ? CATEGORY_LABELS[m.categoria][currentLang] : m.categoria;
-    tr.innerHTML = `<td>${m.fecha}</td>
-      <td><span class="chip">${ICONS[m.categoria]||'🔹'} ${catLabel}</span></td>
-      <td>${m.desc||'—'}</td>
-      <td class="${isGasto?'amt-out':'amt-in'}">${isGasto?'-':'+'}$${m.monto.toFixed(2)}</td>
+    tr.innerHTML = `<td data-label="${t.thFecha}">${m.fecha}</td>
+      <td data-label="${t.thTipo}"><span class="chip">${ICONS[m.categoria]||'🔹'} ${catLabel}</span></td>
+      <td data-label="${t.thDesc}">${m.desc||'—'}</td>
+      <td data-label="${t.thMonto}" class="${isGasto?'amt-out':'amt-in'}">${isGasto?'-':'+'}$${m.monto.toFixed(2)}</td>
       <td><button class="del" onclick="borrar('${m.tipo}', ${(isGasto?gastos:ingresos).indexOf(m)})">✕</button></td>`;
     tbody.appendChild(tr);
   });

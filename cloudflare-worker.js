@@ -12,12 +12,13 @@
 
 export default {
   async fetch(request, env) {
-    const ALLOWED_ORIGIN = "https://alexis-ce.github.io";
-    const origin = request.headers.get("Origin");
-    const isAllowed = origin === ALLOWED_ORIGIN;
+    const origin = request.headers.get("Origin") || "";
+    const isAllowed = origin === "https://finzn.pages.dev"
+      || origin.endsWith(".finzn.pages.dev")
+      || origin === "https://alexis-ce.github.io";
 
     const corsHeaders = {
-      "Access-Control-Allow-Origin": isAllowed ? ALLOWED_ORIGIN : "",
+      "Access-Control-Allow-Origin": isAllowed ? origin : "",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
