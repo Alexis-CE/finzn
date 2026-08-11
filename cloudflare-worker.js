@@ -14,8 +14,7 @@ export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
     const isAllowed = origin === "https://finzn.pages.dev"
-      || origin.endsWith(".finzn.pages.dev")
-      || origin === "https://alexis-ce.github.io";
+      || origin.endsWith(".finzn.pages.dev");
 
     const corsHeaders = {
       "Access-Control-Allow-Origin": isAllowed ? origin : "",
