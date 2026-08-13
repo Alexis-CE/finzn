@@ -10,6 +10,7 @@
 </head>
 <body>
 <header>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()">☰</button>
   <div><h1 id="appTitle">💸 ¿En qué se me va la lana?</h1><div class="sub" id="appSub">Ingresos, gastos y consejos con IA</div></div>
   <div class="fileops">
     <div class="lang-switch" id="langSwitch">
@@ -17,6 +18,13 @@
       <button type="button" class="lang-opt active" data-lang="es" onclick="setIdioma('es')">ES</button>
       <button type="button" class="lang-opt" data-lang="en" onclick="setIdioma('en')">EN</button>
     </div>
+    <div class="lang-switch" id="themeSwitch">
+      <span class="lang-indicator" id="themeIndicator"></span>
+      <button type="button" class="lang-opt active" data-theme="dark" onclick="setTema('dark')">🌙</button>
+      <button type="button" class="lang-opt" data-theme="light" onclick="setTema('light')">☀️</button>
+    </div>
+    <button class="secondary" id="btnSyncUp" onclick="subirNube()">☁️⬆</button>
+    <button class="secondary" id="btnSyncDown" onclick="bajarNube()">☁️⬇</button>
     <button class="secondary" id="btnExport" onclick="exportarJSON()">⬇ Exportar</button>
     <button class="secondary" id="btnExportCSV" onclick="exportarCSV()">⬇ CSV</button>
     <button class="secondary" id="btnImport" onclick="document.getElementById('fileInput').click()">⬆ Importar</button>
@@ -24,9 +32,18 @@
   </div>
 </header>
 
+<nav class="side-menu" id="sideMenu">
+  <a href="#dashboard" onclick="toggleMenu()">💰 Dashboard</a>
+  <a href="#movimientos" onclick="toggleMenu()">📋 Movimientos</a>
+  <a href="#presupuesto" onclick="toggleMenu()">🚦 Presupuesto</a>
+  <a href="#metaSeccion" onclick="toggleMenu()">🎯 Meta</a>
+  <a href="#iaSeccion" onclick="toggleMenu()">🤖 Análisis IA</a>
+</nav>
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
 <main>
   <!-- DASHBOARD -->
-  <div class="stats">
+  <div class="stats" id="dashboard">
     <div class="stat accent"><div class="icon">💰</div><div class="label" id="lblBalance">Balance</div><div class="val" id="statBalance">$0</div></div>
     <div class="stat pos"><div class="icon">📈</div><div class="label" id="lblIn">Ingresos</div><div class="val" id="statIn">$0</div></div>
     <div class="stat neg"><div class="icon">📉</div><div class="label" id="lblOut">Gastos</div><div class="val" id="statOut">$0</div></div>
@@ -62,7 +79,7 @@
       <input type="text" id="descG" list="descListG" placeholder="Descripción (opcional)">
       <datalist id="descListG"></datalist>
       <button type="submit" id="btnAgregarG">Agregar</button>
-      <label class="recur-check"><input type="checkbox" id="recurG"><span id="recurLabelG">🔁 Se repite cada mes</span></label>
+      <label class="recur-check"><input type="checkbox" id="recurG"><span class="switch-track"><span class="switch-thumb"></span></span><span id="recurLabelG">🔁 Se repite cada mes</span></label>
     </form>
 
     <form id="formIngreso" style="display:none">
@@ -76,13 +93,13 @@
       <input type="text" id="descI" list="descListI" placeholder="Descripción (ej. tarea de Python)">
       <datalist id="descListI"></datalist>
       <button type="submit" id="btnAgregarI">Agregar</button>
-      <label class="recur-check"><input type="checkbox" id="recurI"><span id="recurLabelI">🔁 Se repite cada mes</span></label>
+      <label class="recur-check"><input type="checkbox" id="recurI"><span class="switch-track"><span class="switch-thumb"></span></span><span id="recurLabelI">🔁 Se repite cada mes</span></label>
     </form>
 
     <button type="button" class="secondary" id="cancelEdit" style="display:none;margin-top:10px" onclick="cancelarEdicion()">Cancelar edición</button>
   </div>
 
-  <div class="grid2">
+  <div class="grid2" id="movimientos">
     <div class="card">
       <div class="toprow"><h2 id="movTitle">📋 Movimientos</h2><span class="badge" id="count">0 registros</span></div>
       <div class="mov-controls">
@@ -109,7 +126,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" id="presupuesto">
     <h2 id="presupuestoTitle">🚦 Presupuesto por categoría</h2>
     <form id="formPresupuesto">
       <select id="presCategoria">
@@ -129,7 +146,7 @@
     <div id="presupuestoLista"></div>
   </div>
 
-  <div class="card">
+  <div class="card" id="metaSeccion">
     <h2 id="metaTitle">🎯 Meta de ahorro</h2>
     <form id="formMeta">
       <input type="text" id="metaNombre" placeholder="¿Para qué? (ej. laptop nueva)">
@@ -144,7 +161,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" id="iaSeccion">
     <h2 id="iaTitle">🤖 Análisis con IA</h2>
     <p class="badge" id="iaBadge">La IA revisa tus movimientos y te dice en qué se te va el dinero, si tus ingresos cubren tus gastos y qué podrías ajustar. No sustituye consejo financiero profesional.</p>
     <button class="ia" id="btnAnalizar" onclick="analizar()">Analizar mis finanzas</button>

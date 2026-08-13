@@ -1,14 +1,20 @@
-// Cloudflare Worker — proxy para Finzn
-// Oculta la API Key de Groq, solo acepta requests desde tu GitHub Pages.
+// Cloudflare Worker — proxy + sync para Finzn
+// 1) Oculta la API Key de Groq, solo acepta requests desde finzn.pages.dev
+// 2) Guarda/lee un respaldo de tus datos en Cloudflare KV para sincronizar entre tus dispositivos
 //
 // DEPLOY (dashboard, sin CLI):
-// 1. dash.cloudflare.com → Workers & Pages → Create → Create Worker
-// 2. Nómbralo "finzn-proxy" → Deploy
-// 3. Edit code → borra todo, pega este archivo completo → Deploy
-// 4. Settings → Variables and Secrets → Add → nombre: GROQ_API_KEY, tipo: Secret,
-//    valor: tu key gsk_... → Save (esto la cifra, nadie la ve ni tú de nuevo)
-// 5. Copia la URL que te da (algo tipo https://finzn-proxy.TU-SUBDOMINIO.workers.dev)
-//    y pégala en main.js en la constante WORKER_URL
+// 1. dash.cloudflare.com → Workers & Pages → finzn-proxy → Edit code → pega este archivo completo → Deploy
+// 2. Settings → Variables and Secrets → confirma que GROQ_API_KEY ya esté (Secret)
+// 3. Settings → Bindings → Add binding → KV Namespace:
+//      - Si no tienes namespace: Create new → nómbralo "finzn-sync" → Create
+//      - Variable name (importante, debe ser EXACTO): FINZN_KV
+//    → Deploy
+
+async function hashCode(code) {
+  const enc = new TextEncoder().encode(code);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
 
 export default {
   async fetch(request, env) {
@@ -18,7 +24,7 @@ export default {
 
     const corsHeaders = {
       "Access-Control-Allow-Origin": isAllowed ? origin : "",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
 
@@ -30,6 +36,38 @@ export default {
       return new Response("Forbidden", { status: 403, headers: corsHeaders });
     }
 
+    const url = new URL(request.url);
+    const jsonHeaders = { ...corsHeaders, "Content-Type": "application/json" };
+
+    // --- SYNC: guardar respaldo en la nube ---
+    if (url.pathname === "/sync/save" && request.method === "POST") {
+      let body;
+      try { body = await request.json(); } catch (e) {
+        return new Response("Bad JSON", { status: 400, headers: corsHeaders });
+      }
+      if (!body.code || typeof body.code !== "string" || !body.data) {
+        return new Response("Bad request", { status: 400, headers: corsHeaders });
+      }
+      const key = "sync:" + await hashCode(body.code);
+      await env.FINZN_KV.put(key, JSON.stringify(body.data));
+      return new Response(JSON.stringify({ ok: true }), { status: 200, headers: jsonHeaders });
+    }
+
+    // --- SYNC: bajar respaldo de la nube ---
+    if (url.pathname === "/sync/load" && request.method === "GET") {
+      const code = url.searchParams.get("code");
+      if (!code) {
+        return new Response("Bad request", { status: 400, headers: corsHeaders });
+      }
+      const key = "sync:" + await hashCode(code);
+      const stored = await env.FINZN_KV.get(key);
+      if (!stored) {
+        return new Response(JSON.stringify({ found: false }), { status: 200, headers: jsonHeaders });
+      }
+      return new Response(JSON.stringify({ found: true, data: JSON.parse(stored) }), { status: 200, headers: jsonHeaders });
+    }
+
+    // --- PROXY de Groq para el análisis de IA ---
     if (request.method !== "POST") {
       return new Response("Method not allowed", { status: 405, headers: corsHeaders });
     }
@@ -63,12 +101,12 @@ export default {
       const data = await groqRes.text();
       return new Response(data, {
         status: groqRes.status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: jsonHeaders,
       });
     } catch (err) {
       return new Response(JSON.stringify({ error: err.message }), {
         status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: jsonHeaders,
       });
     }
   },

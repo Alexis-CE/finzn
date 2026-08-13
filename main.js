@@ -59,7 +59,13 @@ const I18N = {
     phPresupuestoMonto: 'Límite mensual',
     btnGuardarPresupuesto: 'Guardar límite',
     presupuestoVacio: 'Aún no has puesto límites. Agrega uno arriba.',
-    presupuestoDe: 'de'
+    presupuestoDe: 'de',
+    syncCodePrompt: 'Inventa un código secreto para sincronizar entre tus dispositivos (usa el mismo en todos):',
+    syncSubido: '☁️ Datos subidos a la nube.',
+    syncBajado: '☁️ Datos bajados y actualizados.',
+    syncNoEncontrado: 'No hay nada guardado con ese código todavía. Sube tus datos primero desde otro dispositivo.',
+    syncConfirmar: 'Esto va a reemplazar tus datos locales con los de la nube. ¿Continuar?',
+    syncError: 'Error de sincronización: '
   },
   en: {
     title: '💸 Where does my money go?',
@@ -103,14 +109,22 @@ const I18N = {
     phPresupuestoMonto: 'Monthly limit',
     btnGuardarPresupuesto: 'Save limit',
     presupuestoVacio: 'No limits set yet. Add one above.',
-    presupuestoDe: 'of'
+    presupuestoDe: 'of',
+    syncCodePrompt: 'Make up a secret code to sync between your devices (use the same one everywhere):',
+    syncSubido: '☁️ Data uploaded to the cloud.',
+    syncBajado: '☁️ Data downloaded and updated.',
+    syncNoEncontrado: 'Nothing saved under that code yet. Upload your data first from another device.',
+    syncConfirmar: 'This will replace your local data with the cloud version. Continue?',
+    syncError: 'Sync error: '
   }
 };
 
 const STORAGE_KEY = 'finanzas_datos_v1';
 const LANG_STORAGE = 'finanzas_lang';
+const THEME_STORAGE = 'finanzas_theme';
 const GOAL_STORAGE = 'finanzas_meta';
 const BUDGET_STORAGE = 'finanzas_presupuestos';
+const SYNC_CODE_STORAGE = 'finanzas_sync_code';
 const WORKER_URL = 'https://finzn-proxy.2020pomelo.workers.dev';
 
 function genId(){
@@ -175,6 +189,7 @@ const datosIniciales = cargarDatos();
 let gastos = datosIniciales.gastos;
 let ingresos = datosIniciales.ingresos;
 let currentLang = localStorage.getItem(LANG_STORAGE) || 'es';
+let currentTheme = localStorage.getItem(THEME_STORAGE) || 'dark';
 let meta = cargarMeta();
 let presupuestos = cargarPresupuestos();
 let editando = null; // {tipo, id}
@@ -229,6 +244,23 @@ function setIdioma(lang){
   currentLang = lang;
   localStorage.setItem(LANG_STORAGE, lang);
   aplicarIdioma();
+}
+
+function setTema(theme){
+  currentTheme = theme;
+  localStorage.setItem(THEME_STORAGE, theme);
+  aplicarTema();
+}
+
+function aplicarTema(){
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  document.querySelectorAll('#themeSwitch .lang-opt').forEach(b=>b.classList.toggle('active', b.dataset.theme===currentTheme));
+  document.getElementById('themeIndicator').style.transform = currentTheme==='light' ? 'translateX(100%)' : 'translateX(0)';
+}
+
+function toggleMenu(){
+  document.getElementById('sideMenu').classList.toggle('open');
+  document.getElementById('menuOverlay').classList.toggle('open');
 }
 
 function aplicarIdioma(){
@@ -733,4 +765,60 @@ async function analizar(){
 
 document.getElementById('metaFecha').min = new Date().toISOString().slice(0,10);
 
+function obtenerCodigoSync(){
+  let code = localStorage.getItem(SYNC_CODE_STORAGE);
+  if(!code){
+    code = window.prompt(I18N[currentLang].syncCodePrompt);
+    if(code) localStorage.setItem(SYNC_CODE_STORAGE, code.trim());
+  }
+  return code ? code.trim() : null;
+}
+
+async function subirNube(){
+  const t = I18N[currentLang];
+  const code = obtenerCodigoSync();
+  if(!code) return;
+  const btn = document.getElementById('btnSyncUp');
+  btn.disabled = true;
+  try{
+    const res = await fetch(WORKER_URL + '/sync/save', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ code, data: {gastos, ingresos, meta, presupuestos} })
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    alert(t.syncSubido);
+  }catch(err){
+    alert(t.syncError + err.message);
+  }
+  btn.disabled = false;
+}
+
+async function bajarNube(){
+  const t = I18N[currentLang];
+  const code = obtenerCodigoSync();
+  if(!code) return;
+  const btn = document.getElementById('btnSyncDown');
+  btn.disabled = true;
+  try{
+    const res = await fetch(WORKER_URL + '/sync/load?code=' + encodeURIComponent(code));
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if(!json.found){ alert(t.syncNoEncontrado); btn.disabled = false; return; }
+    if(!window.confirm(t.syncConfirmar)){ btn.disabled = false; return; }
+    gastos = migrar(json.data.gastos || []);
+    ingresos = migrar(json.data.ingresos || []);
+    meta = json.data.meta || null;
+    presupuestos = json.data.presupuestos || {};
+    guardarMeta();
+    guardarPresupuestos();
+    render();
+    alert(t.syncBajado);
+  }catch(err){
+    alert(t.syncError + err.message);
+  }
+  btn.disabled = false;
+}
+
+aplicarTema();
 aplicarIdioma();
