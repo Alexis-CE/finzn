@@ -2,7 +2,7 @@
 
 Tracker de finanzas personales: registra ingresos y gastos, ponte metas y presupuestos, visualiza en qué se te va el dinero, sincroniza entre tus dispositivos, y pide un análisis con IA (gratis, vía Groq a través de un proxy propio) sobre tus patrones de gasto.
 
-Sin backend propio para los datos, sin login tradicional, sin base de datos SQL. Todo corre en tu navegador — solo el análisis de IA y el sync pasan por un Cloudflare Worker que oculta la key y guarda un respaldo cifrado por código.
+Sin backend propio para los datos, sin login tradicional, sin base de datos SQL. Todo corre en tu navegador 
 
 ### Features
 
@@ -34,18 +34,10 @@ Sin backend propio para los datos, sin login tradicional, sin base de datos SQL.
 
 - HTML / CSS / JavaScript vanilla — sin frameworks, sin build step
 - [Chart.js](https://www.chartjs.org/) para las gráficas
-- [Groq API](https://groq.com/) (`llama-3.3-70b-versatile`) para el análisis con IA, vía un [Cloudflare Worker](https://workers.cloudflare.com/) proxy
-- [Cloudflare KV](https://developers.cloudflare.com/kv/) para el respaldo de sync entre dispositivos (namespace `finzn-sync`, binding `FINZN_KV`)
-- Hosteado en [Cloudflare Pages](https://pages.cloudflare.com/), conectado a este repo (deploy automático con cada push a `main`)
+- [Groq API](https://groq.com/) (`llama-3.3-70b-versatile`) para el análisis con IA, vía un [Cloudflare Worker]
 
 ### Notas
 
 - Tus datos (`localStorage`) nunca salen de tu navegador salvo cuando usas sync explícitamente
-- El código de sync se cifra (SHA-256) antes de usarse como llave en KV — ni con acceso al namespace se puede ver tu código real
 - Sync es manual, no en tiempo real: si editas en 2 dispositivos sin sincronizar entre medio, gana el último que subió
-- Si exportas un `mis_finanzas.json`, el `.gitignore` ya lo bloquea por default
 - El Worker (`finzn-proxy`) solo acepta peticiones desde `finzn.pages.dev` — CORS restringido
-
-### Posible evolución futura
-
-Si algún día se quiere sync en tiempo real de verdad (no manual) o multi-usuario real con login, la app podría migrar a usar una base de datos propia corriendo en el home lab (MariaDB en el NAS, mismo patrón que CodeLab vía Tailscale+socat) en vez de Cloudflare KV — permitiría login real, historial de cambios, y sync automático sin códigos que recordar. No es necesario ahorita, es solo la ruta de escalamiento si el proyecto crece.
