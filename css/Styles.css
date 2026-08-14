@@ -28,6 +28,7 @@
 .auth-submit:hover{transform:scale(1.06)}
 .auth-submit:disabled{opacity:.5;cursor:default;transform:none}
 @media(min-width:640px){.auth-card{padding:48px 40px}}
+#formAuth{display:block}
 body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;transition:background-color .35s ease,color .35s ease}
 body, .card, .stat, input, select, button, .chip, header, .side-menu{transition:background-color .3s ease,color .3s ease,border-color .3s ease}
 h1{font-size:1.25rem;margin:0;letter-spacing:.2px}

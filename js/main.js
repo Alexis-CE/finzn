@@ -163,6 +163,7 @@ function cargarDatos(){
 
 function guardarDatos(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify({gastos, ingresos}));
+  programarSyncNube();
 }
 
 function cargarMeta(){
@@ -174,6 +175,7 @@ function cargarMeta(){
 function guardarMeta(){
   if(meta) localStorage.setItem(GOAL_STORAGE, JSON.stringify(meta));
   else localStorage.removeItem(GOAL_STORAGE);
+  programarSyncNube();
 }
 
 function cargarPresupuestos(){
@@ -184,6 +186,7 @@ function cargarPresupuestos(){
 }
 function guardarPresupuestos(){
   localStorage.setItem(BUDGET_STORAGE, JSON.stringify(presupuestos));
+  programarSyncNube();
 }
 
 const datosIniciales = cargarDatos();
@@ -768,48 +771,34 @@ document.getElementById('metaFecha').min = new Date().toISOString().slice(0,10);
 
 function getToken(){ return localStorage.getItem(TOKEN_STORAGE); }
 
-async function subirNube(){
-  const t = I18N[currentLang];
-  const btn = document.getElementById('btnSyncUp');
-  btn.disabled = true;
-  try{
-    const res = await fetch(WORKER_URL + '/sync/save', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json', 'Authorization': 'Bearer ' + getToken()},
-      body: JSON.stringify({ data: {gastos, ingresos, meta, presupuestos} })
-    });
-    if(!res.ok) throw new Error('HTTP ' + res.status);
-    alert(t.syncSubido);
-  }catch(err){
-    alert(t.syncError + err.message);
-  }
-  btn.disabled = false;
+let syncTimeout = null;
+function programarSyncNube(){
+  if(!getToken()) return;
+  clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(async ()=>{
+    try{
+      await fetch(WORKER_URL + '/sync/save', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json', 'Authorization': 'Bearer ' + getToken()},
+        body: JSON.stringify({ data: {gastos, ingresos, meta, presupuestos} })
+      });
+    }catch(e){}
+  }, 800);
 }
 
-async function bajarNube(){
-  const t = I18N[currentLang];
-  const btn = document.getElementById('btnSyncDown');
-  btn.disabled = true;
+async function cargarNubeInicial(){
   try{
-    const res = await fetch(WORKER_URL + '/sync/load', {
-      headers: {'Authorization': 'Bearer ' + getToken()}
-    });
-    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const res = await fetch(WORKER_URL + '/sync/load', { headers: {'Authorization': 'Bearer ' + getToken()} });
+    if(!res.ok) return;
     const json = await res.json();
-    if(!json.found){ alert(t.syncNoEncontrado); btn.disabled = false; return; }
-    if(!window.confirm(t.syncConfirmar)){ btn.disabled = false; return; }
-    gastos = migrar(json.data.gastos || []);
-    ingresos = migrar(json.data.ingresos || []);
-    meta = json.data.meta || null;
-    presupuestos = json.data.presupuestos || {};
-    guardarMeta();
-    guardarPresupuestos();
-    render();
-    alert(t.syncBajado);
-  }catch(err){
-    alert(t.syncError + err.message);
-  }
-  btn.disabled = false;
+    if(json.found){
+      gastos = migrar(json.data.gastos || []);
+      ingresos = migrar(json.data.ingresos || []);
+      meta = json.data.meta || null;
+      presupuestos = json.data.presupuestos || {};
+      render();
+    }
+  }catch(e){}
 }
 
 function toggleAuthMode(){
@@ -822,6 +811,7 @@ function toggleAuthMode(){
 function mostrarApp(){
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('appRoot').style.display = 'block';
+  cargarNubeInicial();
 }
 
 function cerrarSesion(){
