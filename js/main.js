@@ -124,8 +124,9 @@ const LANG_STORAGE = 'finanzas_lang';
 const THEME_STORAGE = 'finanzas_theme';
 const GOAL_STORAGE = 'finanzas_meta';
 const BUDGET_STORAGE = 'finanzas_presupuestos';
-const SYNC_CODE_STORAGE = 'finanzas_sync_code';
+const TOKEN_STORAGE = 'finzn_token';
 const WORKER_URL = 'https://finzn-proxy.2020pomelo.workers.dev';
+let authMode = 'login';
 
 function genId(){
   return (crypto.randomUUID ? crypto.randomUUID() : 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2));
@@ -192,7 +193,7 @@ let currentLang = localStorage.getItem(LANG_STORAGE) || 'es';
 let currentTheme = localStorage.getItem(THEME_STORAGE) || 'dark';
 let meta = cargarMeta();
 let presupuestos = cargarPresupuestos();
-let editando = null; // {tipo, id}
+let editando = null;
 let sortField = null, sortDir = 1;
 
 let chart, chartIngresos;
@@ -765,26 +766,17 @@ async function analizar(){
 
 document.getElementById('metaFecha').min = new Date().toISOString().slice(0,10);
 
-function obtenerCodigoSync(){
-  let code = localStorage.getItem(SYNC_CODE_STORAGE);
-  if(!code){
-    code = window.prompt(I18N[currentLang].syncCodePrompt);
-    if(code) localStorage.setItem(SYNC_CODE_STORAGE, code.trim());
-  }
-  return code ? code.trim() : null;
-}
+function getToken(){ return localStorage.getItem(TOKEN_STORAGE); }
 
 async function subirNube(){
   const t = I18N[currentLang];
-  const code = obtenerCodigoSync();
-  if(!code) return;
   const btn = document.getElementById('btnSyncUp');
   btn.disabled = true;
   try{
     const res = await fetch(WORKER_URL + '/sync/save', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ code, data: {gastos, ingresos, meta, presupuestos} })
+      headers: {'Content-Type':'application/json', 'Authorization': 'Bearer ' + getToken()},
+      body: JSON.stringify({ data: {gastos, ingresos, meta, presupuestos} })
     });
     if(!res.ok) throw new Error('HTTP ' + res.status);
     alert(t.syncSubido);
@@ -796,12 +788,12 @@ async function subirNube(){
 
 async function bajarNube(){
   const t = I18N[currentLang];
-  const code = obtenerCodigoSync();
-  if(!code) return;
   const btn = document.getElementById('btnSyncDown');
   btn.disabled = true;
   try{
-    const res = await fetch(WORKER_URL + '/sync/load?code=' + encodeURIComponent(code));
+    const res = await fetch(WORKER_URL + '/sync/load', {
+      headers: {'Authorization': 'Bearer ' + getToken()}
+    });
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     if(!json.found){ alert(t.syncNoEncontrado); btn.disabled = false; return; }
@@ -818,6 +810,55 @@ async function bajarNube(){
     alert(t.syncError + err.message);
   }
   btn.disabled = false;
+}
+
+function toggleAuthMode(){
+  authMode = authMode === 'login' ? 'register' : 'login';
+  document.getElementById('authTitle').textContent = authMode === 'login' ? 'Iniciar sesión' : 'Crear cuenta';
+  document.getElementById('authToggle').textContent = authMode === 'login' ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión';
+  document.getElementById('authError').textContent = '';
+}
+
+function mostrarApp(){
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('appRoot').style.display = 'block';
+}
+
+function cerrarSesion(){
+  fetch(WORKER_URL + '/auth/logout', { method:'POST', headers:{'Authorization':'Bearer ' + getToken()} }).catch(()=>{});
+  localStorage.removeItem(TOKEN_STORAGE);
+  location.reload();
+}
+
+document.getElementById('formAuth').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl = document.getElementById('authError');
+  const btn = document.getElementById('authSubmit');
+  errEl.textContent = '';
+  btn.disabled = true;
+  try{
+    const path = authMode === 'login' ? '/auth/login' : '/auth/register';
+    const res = await fetch(WORKER_URL + path, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password })
+    });
+    const json = await res.json();
+    if(!res.ok){ errEl.textContent = json.error || 'Error'; btn.disabled = false; return; }
+    localStorage.setItem(TOKEN_STORAGE, json.token);
+    mostrarApp();
+  }catch(err){
+    errEl.textContent = 'Error de conexión: ' + err.message;
+  }
+  btn.disabled = false;
+});
+
+if(getToken()){ mostrarApp(); }
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 }
 
 aplicarTema();

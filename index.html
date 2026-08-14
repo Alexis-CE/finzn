@@ -6,9 +6,35 @@
 <title>Finzn · ¿En qué se me va la lana?</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%B8%3C/text%3E%3C/svg%3E">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link rel="stylesheet" href="Styles.css">
+<link rel="stylesheet" href="css/Styles.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0d12">
 </head>
 <body>
+
+<div id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">💸</div>
+    <h1 class="auth-title" id="authTitle">Iniciar sesión</h1>
+
+    <form id="formAuth">
+      <label class="auth-label">Email</label>
+      <input type="email" id="authEmail" required autocomplete="email">
+
+      <label class="auth-label">Contraseña</label>
+      <input type="password" id="authPassword" required autocomplete="current-password" minlength="6">
+
+      <div class="auth-error" id="authError"></div>
+
+      <div class="auth-footer">
+        <span class="auth-toggle" id="authToggle" onclick="toggleAuthMode()">¿No tienes cuenta? Regístrate</span>
+        <button type="submit" class="auth-submit" id="authSubmit" aria-label="Entrar">→</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none">
 <header>
   <button class="hamburger" id="hamburger" onclick="toggleMenu()">☰</button>
   <div><h1 id="appTitle">💸 ¿En qué se me va la lana?</h1><div class="sub" id="appSub">Ingresos, gastos y consejos con IA</div></div>
@@ -25,6 +51,7 @@
     </div>
     <button class="secondary" id="btnSyncUp" onclick="subirNube()">☁️⬆</button>
     <button class="secondary" id="btnSyncDown" onclick="bajarNube()">☁️⬇</button>
+    <button class="secondary" id="btnLogout" onclick="cerrarSesion()">🚪</button>
     <button class="secondary" id="btnExport" onclick="exportarJSON()">⬇ Exportar</button>
     <button class="secondary" id="btnExportCSV" onclick="exportarCSV()">⬇ CSV</button>
     <button class="secondary" id="btnImport" onclick="document.getElementById('fileInput').click()">⬆ Importar</button>
@@ -42,7 +69,6 @@
 <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
 
 <main>
-  <!-- DASHBOARD -->
   <div class="stats" id="dashboard">
     <div class="stat accent"><div class="icon">💰</div><div class="label" id="lblBalance">Balance</div><div class="val" id="statBalance">$0</div></div>
     <div class="stat pos"><div class="icon">📈</div><div class="label" id="lblIn">Ingresos</div><div class="val" id="statIn">$0</div></div>
@@ -56,7 +82,6 @@
     <div class="comparativa" id="comparativa"></div>
   </div>
 
-  <!-- FORM -->
   <div class="card">
     <div class="tabs">
       <div class="tab active" id="tabGasto" onclick="switchTab('gasto')">📉 Gasto</div>
@@ -168,7 +193,8 @@
     <div id="iaResult"></div>
   </div>
 </main>
+</div>
 
-<script src="main.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
