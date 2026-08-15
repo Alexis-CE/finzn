@@ -859,5 +859,24 @@ if('serviceWorker' in navigator){
   window.addEventListener('load', ()=> navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 }
 
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', e=>{
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  document.getElementById('btnInstallApp').style.display = 'block';
+});
+
+async function instalarApp(){
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  document.getElementById('btnInstallApp').style.display = 'none';
+}
+
+window.addEventListener('appinstalled', ()=>{
+  document.getElementById('btnInstallApp').style.display = 'none';
+});
+
 aplicarTema();
 aplicarIdioma();
