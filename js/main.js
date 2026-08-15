@@ -801,6 +801,14 @@ async function cargarNubeInicial(){
   }catch(e){}
 }
 
+function togglePwVisibility(){
+  const inp = document.getElementById('authPassword');
+  const btn = document.getElementById('pwToggle');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.textContent = show ? '🙈' : '👁';
+}
+
 function toggleAuthMode(){
   authMode = authMode === 'login' ? 'register' : 'login';
   document.getElementById('authTitle').textContent = authMode === 'login' ? 'Iniciar sesión' : 'Crear cuenta';

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Finzn · ¿En qué se me va la lana?</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%B8%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="css/Styles.css">
 <link rel="manifest" href="manifest.json">
@@ -22,7 +23,10 @@
       <input type="email" id="authEmail" required autocomplete="email">
 
       <label class="auth-label">Contraseña</label>
-      <input type="password" id="authPassword" required autocomplete="current-password" minlength="6">
+      <div class="pw-wrap">
+        <input type="password" id="authPassword" required autocomplete="current-password" minlength="6">
+        <button type="button" class="pw-toggle" id="pwToggle" onclick="togglePwVisibility()" aria-label="Mostrar contraseña">👁</button>
+      </div>
 
       <div class="auth-error" id="authError"></div>
 
@@ -37,8 +41,18 @@
 <div id="appRoot" style="display:none">
 <header>
   <button class="hamburger" id="hamburger" onclick="toggleMenu()">☰</button>
-  <div><h1 id="appTitle">💸 ¿En qué se me va la lana?</h1><div class="sub" id="appSub">Ingresos, gastos y consejos con IA</div></div>
-  <div class="fileops">
+  <div class="header-title"><h1 id="appTitle">💸 ¿En qué se me va la lana?</h1><div class="sub" id="appSub">Ingresos, gastos y consejos con IA</div></div>
+  <button class="secondary" id="btnLogout" onclick="cerrarSesion()">🚪</button>
+</header>
+
+<nav class="side-menu" id="sideMenu">
+  <a href="#dashboard" onclick="toggleMenu()">💰 Dashboard</a>
+  <a href="#movimientos" onclick="toggleMenu()">📋 Movimientos</a>
+  <a href="#presupuesto" onclick="toggleMenu()">🚦 Presupuesto</a>
+  <a href="#metaSeccion" onclick="toggleMenu()">🎯 Meta</a>
+  <a href="#iaSeccion" onclick="toggleMenu()">🤖 Análisis IA</a>
+  <div class="side-divider"></div>
+  <div class="side-settings">
     <div class="lang-switch" id="langSwitch">
       <span class="lang-indicator" id="langIndicator"></span>
       <button type="button" class="lang-opt active" data-lang="es" onclick="setIdioma('es')">ES</button>
@@ -49,20 +63,11 @@
       <button type="button" class="lang-opt active" data-theme="dark" onclick="setTema('dark')">🌙</button>
       <button type="button" class="lang-opt" data-theme="light" onclick="setTema('light')">☀️</button>
     </div>
-    <button class="secondary" id="btnLogout" onclick="cerrarSesion()">🚪</button>
-    <button class="secondary" id="btnExport" onclick="exportarJSON()">⬇ Exportar</button>
-    <button class="secondary" id="btnExportCSV" onclick="exportarCSV()">⬇ CSV</button>
-    <button class="secondary" id="btnImport" onclick="document.getElementById('fileInput').click()">⬆ Importar</button>
-    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="importarJSON(event)">
   </div>
-</header>
-
-<nav class="side-menu" id="sideMenu">
-  <a href="#dashboard" onclick="toggleMenu()">💰 Dashboard</a>
-  <a href="#movimientos" onclick="toggleMenu()">📋 Movimientos</a>
-  <a href="#presupuesto" onclick="toggleMenu()">🚦 Presupuesto</a>
-  <a href="#metaSeccion" onclick="toggleMenu()">🎯 Meta</a>
-  <a href="#iaSeccion" onclick="toggleMenu()">🤖 Análisis IA</a>
+  <a href="#" class="side-action" onclick="exportarJSON();return false;">⬇ Exportar JSON</a>
+  <a href="#" class="side-action" onclick="exportarCSV();return false;">⬇ Exportar CSV</a>
+  <a href="#" class="side-action" onclick="document.getElementById('fileInput').click();return false;">⬆ Importar</a>
+  <input type="file" id="fileInput" accept=".json" style="display:none" onchange="importarJSON(event)">
 </nav>
 <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
 
