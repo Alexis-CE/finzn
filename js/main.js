@@ -859,19 +859,33 @@ if('serviceWorker' in navigator){
   window.addEventListener('load', ()=> navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 }
 
+function appYaInstalada(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
 let deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', e=>{
   e.preventDefault();
   deferredInstallPrompt = e;
-  document.getElementById('btnInstallApp').style.display = 'block';
 });
 
 async function instalarApp(){
-  if(!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt = null;
-  document.getElementById('btnInstallApp').style.display = 'none';
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    document.getElementById('btnInstallApp').style.display = 'none';
+    return;
+  }
+  const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const msg = esIOS
+    ? 'En iPhone/iPad: toca el ícono de Compartir (el cuadro con la flecha hacia arriba) y elige "Agregar a inicio".'
+    : 'Busca el ícono de instalar (⊕ o pantalla con flecha) en la barra de direcciones de tu navegador, o abre el menú (⋮) y elige "Instalar app" / "Agregar a pantalla de inicio".';
+  alert(msg);
+}
+
+if(!appYaInstalada()){
+  document.getElementById('btnInstallApp').style.display = 'block';
 }
 
 window.addEventListener('appinstalled', ()=>{
