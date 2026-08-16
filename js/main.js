@@ -860,11 +860,6 @@ function appYaInstalada(){
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
 
-function dismissInstallBanner(){
-  localStorage.setItem('finzn_install_dismissed', '1');
-  document.getElementById('installBanner').style.display = 'none';
-}
-
 let deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', e=>{
   e.preventDefault();
@@ -876,22 +871,18 @@ async function instalarApp(){
     deferredInstallPrompt.prompt();
     await deferredInstallPrompt.userChoice;
     deferredInstallPrompt = null;
-    document.getElementById('installBanner').style.display = 'none';
+    document.getElementById('btnInstallApp').style.display = 'none';
     return;
   }
-  const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const msg = esIOS
-    ? 'En iPhone/iPad: toca el ícono de Compartir (el cuadro con la flecha hacia arriba) y elige "Agregar a inicio".'
-    : 'Busca el ícono de instalar (⊕ o pantalla con flecha) en la barra de direcciones de tu navegador, o abre el menú (⋮) y elige "Instalar app" / "Agregar a pantalla de inicio".';
-  alert(msg);
+  alert('Chrome todavía no marca esta página como instalable en este dispositivo (necesita que hayas navegado un poco, ~30 seg, y tocado la pantalla al menos una vez). Usa la app un rato, cierra este mensaje, y vuelve a intentar el botón. Si sigue sin salir, revisa en el menú ⋮ de Chrome si ya dice "Instalar app" en vez de "Agregar a inicio".');
 }
 
-if(!appYaInstalada() && !localStorage.getItem('finzn_install_dismissed')){
-  document.getElementById('installBanner').style.display = 'flex';
+if(!appYaInstalada()){
+  document.getElementById('btnInstallApp').style.display = 'block';
 }
 
 window.addEventListener('appinstalled', ()=>{
-  document.getElementById('installBanner').style.display = 'none';
+  document.getElementById('btnInstallApp').style.display = 'none';
 });
 
 aplicarTema();
