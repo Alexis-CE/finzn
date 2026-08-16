@@ -310,7 +310,7 @@ function aplicarIdioma(){
   document.getElementById('presMonto').placeholder = t.phPresupuestoMonto;
   document.getElementById('btnGuardarPresupuesto').textContent = t.btnGuardarPresupuesto;
 
-  document.querySelectorAll('.lang-opt').forEach(b=>b.classList.toggle('active', b.dataset.lang===currentLang));
+  document.querySelectorAll('#langSwitch .lang-opt').forEach(b=>b.classList.toggle('active', b.dataset.lang===currentLang));
   document.getElementById('langIndicator').style.transform = currentLang==='en' ? 'translateX(100%)' : 'translateX(0)';
 
   traducirSelect('categoria');
