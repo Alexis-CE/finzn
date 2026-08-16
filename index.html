@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%B8%3C/text%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link rel="stylesheet" href="css/Styles.css?v=2">
+<link rel="stylesheet" href="css/Styles.css?v=3">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b0d12">
 </head>
@@ -68,9 +68,16 @@
   <a href="#" class="side-action" onclick="exportarCSV();return false;">⬇ Exportar CSV</a>
   <a href="#" class="side-action" onclick="document.getElementById('fileInput').click();return false;">⬆ Importar</a>
   <input type="file" id="fileInput" accept=".json" style="display:none" onchange="importarJSON(event)">
-  <button type="button" class="side-action" id="btnInstallApp" style="border:none;background:none;text-align:left;cursor:pointer;width:100%" onclick="instalarApp()">📲 Descargar app</button>
 </nav>
 <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
+<div class="install-banner" id="installBanner" style="display:none">
+  <span>📲 Instálalo en tu celular para acceso rápido, sin abrir el navegador.</span>
+  <div class="install-banner-actions">
+    <button class="install-btn" onclick="instalarApp()">Instalar</button>
+    <button class="install-dismiss" onclick="dismissInstallBanner()" aria-label="Cerrar">✕</button>
+  </div>
+</div>
 
 <main>
   <div class="stats" id="dashboard">
@@ -199,6 +206,6 @@
 </main>
 </div>
 
-<script src="js/main.js?v=2"></script>
+<script src="js/main.js?v=3"></script>
 </body>
 </html>

@@ -272,9 +272,6 @@ function aplicarIdioma(){
   document.documentElement.lang = currentLang;
   document.getElementById('appTitle').textContent = t.title;
   document.getElementById('appSub').textContent = t.subtitle;
-  document.getElementById('btnExport').textContent = t.btnExport;
-  document.getElementById('btnExportCSV').textContent = t.btnExportCSV;
-  document.getElementById('btnImport').textContent = t.btnImport;
   document.getElementById('lblBalance').textContent = t.lblBalance;
   document.getElementById('lblIn').textContent = t.lblIn;
   document.getElementById('lblOut').textContent = t.lblOut;
@@ -863,6 +860,11 @@ function appYaInstalada(){
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
 
+function dismissInstallBanner(){
+  localStorage.setItem('finzn_install_dismissed', '1');
+  document.getElementById('installBanner').style.display = 'none';
+}
+
 let deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', e=>{
   e.preventDefault();
@@ -874,7 +876,7 @@ async function instalarApp(){
     deferredInstallPrompt.prompt();
     await deferredInstallPrompt.userChoice;
     deferredInstallPrompt = null;
-    document.getElementById('btnInstallApp').style.display = 'none';
+    document.getElementById('installBanner').style.display = 'none';
     return;
   }
   const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -884,12 +886,12 @@ async function instalarApp(){
   alert(msg);
 }
 
-if(!appYaInstalada()){
-  document.getElementById('btnInstallApp').style.display = 'block';
+if(!appYaInstalada() && !localStorage.getItem('finzn_install_dismissed')){
+  document.getElementById('installBanner').style.display = 'flex';
 }
 
 window.addEventListener('appinstalled', ()=>{
-  document.getElementById('btnInstallApp').style.display = 'none';
+  document.getElementById('installBanner').style.display = 'none';
 });
 
 aplicarTema();
