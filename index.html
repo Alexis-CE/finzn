@@ -7,11 +7,14 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%B8%3C/text%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="icon-192.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link rel="stylesheet" href="css/Styles.css?v=4">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://connect.facebook.net/es_LA/sdk.js" async defer></script>
+<link rel="stylesheet" href="css/Styles.css?v=6">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b0d12">
 </head>
 <body>
+<div id="fb-root"></div>
 
 <div id="landingScreen" class="landing-screen">
   <nav class="landing-nav" aria-label="Navegación principal">
@@ -57,34 +60,94 @@
       <div class="steps"><article><span>01</span><h3>Registra</h3><p>Anota ingresos y gastos en segundos, desde cualquier dispositivo.</p></article><article><span>02</span><h3>Observa</h3><p>Descubre patrones con gráficas, presupuestos y comparativas.</p></article><article><span>03</span><h3>Decide</h3><p>Define una meta y recibe ideas concretas para acercarte a ella.</p></article></div>
     </section>
 
+    <section class="feature-section" aria-label="Qué incluye Finzn">
+      <div class="section-heading"><p class="eyebrow">Qué te llevas</p><h2>Todo lo que necesitas, nada que pagar.</h2><p>Finzn es gratis, sin tarjeta ni letras chiquitas — nació para resolver mi propio problema.</p></div>
+      <div class="feature-list">
+        <article><span class="feature-icon" aria-hidden="true">🤖</span><div><h3>Análisis con IA</h3><p>Le preguntas y te dice en qué se te va el dinero, sin rollos.</p></div></article>
+        <article><span class="feature-icon" aria-hidden="true">🚦</span><div><h3>Presupuesto por categoría</h3><p>Semáforo visual: verde, amarillo y rojo antes de que te pases.</p></div></article>
+        <article><span class="feature-icon" aria-hidden="true">🎯</span><div><h3>Meta de ahorro</h3><p>Ponle fecha y monto, Finzn calcula cuánto ahorrar cada mes.</p></div></article>
+        <article><span class="feature-icon" aria-hidden="true">⬇</span><div><h3>Exporta cuando quieras</h3><p>JSON o CSV — tus datos son tuyos, no de nadie más.</p></div></article>
+        <article><span class="feature-icon" aria-hidden="true">📲</span><div><h3>Instálala como app</h3><p>Se agrega a tu pantalla de inicio, sin pasar por ninguna tienda.</p></div></article>
+      </div>
+    </section>
+
     <section class="landing-final"><div><p class="eyebrow">Empieza hoy</p><h2>La tranquilidad también se puede presupuestar.</h2></div><button type="button" class="landing-cta" onclick="mostrarLogin()">Entrar a Finzn <span aria-hidden="true">→</span></button></section>
   </main>
   <footer class="landing-footer"><span>finzn<span class="brand-dot">.</span></span><span>Hecho para entender mejor tu lana.</span></footer>
 </div>
 
 <div id="authScreen" class="auth-screen" style="display:none">
+  <canvas id="authStarsCanvas" class="auth-stars-canvas" aria-hidden="true"></canvas>
   <div class="auth-card">
-    <button type="button" class="auth-back" onclick="mostrarLanding()">← Volver a Finzn</button>
-    <div class="auth-logo">💸</div>
-    <h1 class="auth-title" id="authTitle">Iniciar sesión</h1>
+    <button type="button" class="auth-back" onclick="mostrarLanding()">← Back to Finzn</button>
+    <div class="auth-logo" aria-hidden="true"><span class="auth-logo-core">f</span></div>
+    <p class="auth-kicker">FINZN ACCOUNT</p>
+    <div class="auth-view-port">
+    <div class="auth-view">
+      <div id="viewLogin">
+      <h1 class="auth-title" id="authTitle">Welcome back</h1>
+      <p class="auth-subtitle" id="authSubtitle">Keep your money moving with intention.</p>
 
-    <form id="formAuth">
-      <label class="auth-label">Email</label>
-      <input type="email" id="authEmail" required autocomplete="email">
+      <form id="formAuth">
+        <div class="social-auth-stack">
+          <div class="google-auth-wrap">
+            <button type="button" class="google-auth" aria-hidden="true" tabindex="-1"><span class="google-g">G</span> Continue with Google</button>
+            <div id="googleBtnContainer" class="google-auth-real"></div>
+          </div>
+          <button type="button" class="social-auth-btn facebook" style="display:none" onclick="loginWithFacebook()"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M22 12c0-5.5-4.5-10-10-10S2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12Z"/></svg> Continue with Facebook</button>
+        </div>
+        <div class="auth-divider"><span>or continue with email</span></div>
 
-      <label class="auth-label">Contraseña</label>
-      <div class="pw-wrap">
-        <input type="password" id="authPassword" required autocomplete="current-password" minlength="6">
-        <button type="button" class="pw-toggle" id="pwToggle" onclick="togglePwVisibility()" aria-label="Mostrar contraseña">👁</button>
+        <label class="auth-label" id="authEmailLabel" for="authEmail">Email address</label>
+        <input type="email" id="authEmail" required autocomplete="email" placeholder="you@example.com">
+
+        <label class="auth-label" id="authPasswordLabel" for="authPassword">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="authPassword" required autocomplete="current-password" minlength="6" placeholder="At least 6 characters">
+          <button type="button" class="pw-toggle" id="pwToggle" onclick="togglePwVisibility()" aria-label="Mostrar contraseña">👁</button>
+        </div>
+        <div class="auth-forgot-link" id="forgotLinkWrap"><span class="auth-toggle" onclick="mostrarForgotPanel()">Forgot password?</span></div>
+
+        <div class="auth-error" id="authError"></div>
+
+        <div class="auth-footer">
+          <span class="auth-toggle" id="authToggle" onclick="toggleAuthMode()">New to Finzn? Create an account</span>
+          <button type="submit" class="auth-submit" id="authSubmit" aria-label="Continue">Continue <span aria-hidden="true">→</span></button>
+        </div>
+      </form>
       </div>
 
-      <div class="auth-error" id="authError"></div>
-
-      <div class="auth-footer">
-        <span class="auth-toggle" id="authToggle" onclick="toggleAuthMode()">¿No tienes cuenta? Regístrate</span>
-        <button type="submit" class="auth-submit" id="authSubmit" aria-label="Entrar">→</button>
+      <div id="viewForgot" style="display:none">
+        <h1 class="auth-title">Reset your password</h1>
+        <p class="auth-subtitle">We'll email you a link to create a new one.</p>
+        <form id="formForgot">
+          <label class="auth-label" for="forgotEmail">Email address</label>
+          <input type="email" id="forgotEmail" required autocomplete="email" placeholder="you@example.com">
+          <div class="auth-error" id="forgotMsg"></div>
+          <div class="auth-footer">
+            <span class="auth-toggle" onclick="mostrarLoginPanel()">← Back to sign in</span>
+            <button type="submit" class="auth-submit" aria-label="Send link">Send link <span aria-hidden="true">→</span></button>
+          </div>
+        </form>
       </div>
-    </form>
+
+      <div id="viewReset" style="display:none">
+        <h1 class="auth-title">Create new password</h1>
+        <p class="auth-subtitle">Make it something you'll remember.</p>
+        <form id="formReset">
+          <label class="auth-label" for="resetPassword">New password</label>
+          <div class="pw-wrap">
+            <input type="password" id="resetPassword" required minlength="6" placeholder="At least 6 characters">
+          </div>
+          <div class="auth-error" id="resetMsg"></div>
+          <div class="auth-footer">
+            <span></span>
+            <button type="submit" class="auth-submit" aria-label="Save password">Save password <span aria-hidden="true">→</span></button>
+          </div>
+        </form>
+      </div>
+    </div>
+    </div>
   </div>
 </div>
 
@@ -249,6 +312,6 @@
 </main>
 </div>
 
-<script src="js/main.js?v=4"></script>
+<script src="js/main.js?v=6"></script>
 </body>
 </html>

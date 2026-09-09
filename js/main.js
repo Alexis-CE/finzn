@@ -126,6 +126,11 @@ const GOAL_STORAGE = 'finanzas_meta';
 const BUDGET_STORAGE = 'finanzas_presupuestos';
 const TOKEN_STORAGE = 'finzn_token';
 const WORKER_URL = 'https://finzn-proxy.2020pomelo.workers.dev';
+const GOOGLE_CLIENT_ID = '518361967083-1dqr9mnnq66l2iv6r5f7t4fql1d64480.apps.googleusercontent.com';
+const FACEBOOK_APP_ID = 'PON_AQUI_TU_FACEBOOK_APP_ID';
+window.fbAsyncInit = function(){
+  FB.init({ appId: FACEBOOK_APP_ID, cookie: true, xfbml: false, version: 'v20.0' });
+};
 let authMode = 'login';
 
 function genId(){
@@ -806,29 +811,266 @@ function togglePwVisibility(){
   btn.textContent = show ? '🙈' : '👁';
 }
 
+let starCanvasEl=null, starCanvasCtx=null, starList=[], starRAF=null;
+function initStarCanvas(){
+  starCanvasEl = document.getElementById('authStarsCanvas');
+  if(!starCanvasEl) return;
+  starCanvasCtx = starCanvasEl.getContext('2d');
+  resizeStarCanvas();
+  const count = window.innerWidth < 600 ? 45 : 80;
+  starList = Array.from({length:count}, ()=>({
+    x: Math.random()*starCanvasEl.width,
+    y: Math.random()*starCanvasEl.height,
+    r: (Math.random()*1.3+.4) * devicePixelRatio,
+    vx: (Math.random()-.5)*.11,
+    vy: (Math.random()-.5)*.08 - .03,
+    baseA: Math.random()*.35+.25,
+    amp: Math.random()*.3+.15,
+    freq: Math.random()*.0006+.0003,
+    phase: Math.random()*Math.PI*2
+  }));
+  window.addEventListener('resize', resizeStarCanvas);
+}
+function resizeStarCanvas(){
+  if(!starCanvasEl) return;
+  starCanvasEl.width = starCanvasEl.offsetWidth * devicePixelRatio;
+  starCanvasEl.height = starCanvasEl.offsetHeight * devicePixelRatio;
+}
+function drawStars(t){
+  if(!starCanvasCtx) return;
+  const w = starCanvasEl.width, h = starCanvasEl.height;
+  starCanvasCtx.clearRect(0,0,w,h);
+  starCanvasCtx.fillStyle = '#ffffff';
+  for(const s of starList){
+    s.x += s.vx; s.y += s.vy;
+    if(s.x < -5) s.x = w+5; if(s.x > w+5) s.x = -5;
+    if(s.y < -5) s.y = h+5; if(s.y > h+5) s.y = -5;
+    const alpha = Math.max(0, Math.min(1, s.baseA + s.amp * Math.sin(t*s.freq + s.phase)));
+    starCanvasCtx.globalAlpha = alpha;
+    starCanvasCtx.beginPath();
+    starCanvasCtx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    starCanvasCtx.fill();
+  }
+  starCanvasCtx.globalAlpha = 1;
+  starRAF = requestAnimationFrame(drawStars);
+}
+function startStarField(){
+  if(!starCanvasCtx) initStarCanvas();
+  if(starRAF) return;
+  starRAF = requestAnimationFrame(drawStars);
+}
+function stopStarField(){
+  if(starRAF){ cancelAnimationFrame(starRAF); starRAF = null; }
+}
+
 function mostrarLanding(){
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('landingScreen').style.display = 'block';
-  window.scrollTo({top:0, behavior:'smooth'});
+  const landing = document.getElementById('landingScreen');
+  const auth = document.getElementById('authScreen');
+  window.scrollTo(0, 0);
+  landing.style.display = 'block';
+  landing.classList.add('screen-anim', 'screen-in-left');
+  auth.classList.add('screen-out-right');
+  stopStarField();
+
+  auth.addEventListener('animationend', function h(){
+    auth.style.display = 'none';
+    auth.classList.remove('screen-out-right');
+    auth.removeEventListener('animationend', h);
+  }, {once:true});
+  landing.addEventListener('animationend', function h(){
+    landing.classList.remove('screen-anim', 'screen-in-left');
+    landing.removeEventListener('animationend', h);
+  }, {once:true});
 }
 
 function mostrarLogin(){
-  document.getElementById('landingScreen').style.display = 'none';
-  document.getElementById('authScreen').style.display = 'flex';
+  const landing = document.getElementById('landingScreen');
+  const auth = document.getElementById('authScreen');
+  landing.classList.add('screen-anim', 'screen-out-left');
+  auth.style.display = 'flex';
+  auth.classList.add('screen-in-right');
   document.getElementById('authEmail').focus();
+  startStarField();
+  initGoogleAuth();
+
+  landing.addEventListener('animationend', function h(){
+    landing.style.display = 'none';
+    landing.classList.remove('screen-anim', 'screen-out-left');
+    landing.removeEventListener('animationend', h);
+  }, {once:true});
+  auth.addEventListener('animationend', function h(){
+    auth.classList.remove('screen-in-right');
+  }, {once:true});
 }
 
+function mostrarLoginPanel(){
+  document.getElementById('viewForgot').style.display = 'none';
+  document.getElementById('viewReset').style.display = 'none';
+  const panel = document.getElementById('viewLogin');
+  panel.style.display = 'block';
+  panel.classList.remove('auth-fade'); void panel.offsetWidth; panel.classList.add('auth-fade');
+  document.getElementById('forgotMsg').textContent = '';
+}
+
+function mostrarForgotPanel(){
+  document.getElementById('viewLogin').style.display = 'none';
+  const panel = document.getElementById('viewForgot');
+  panel.style.display = 'block';
+  panel.classList.remove('auth-fade'); void panel.offsetWidth; panel.classList.add('auth-fade');
+  document.getElementById('forgotEmail').value = document.getElementById('authEmail').value;
+}
+
+document.getElementById('formForgot').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const email = document.getElementById('forgotEmail').value.trim();
+  const msg = document.getElementById('forgotMsg');
+  const btn = e.target.querySelector('.auth-submit');
+  msg.style.color = '';
+  msg.textContent = '';
+  btn.disabled = true;
+  try{
+    await fetch(WORKER_URL + '/auth/forgot', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email })
+    });
+    msg.style.color = 'var(--mint)';
+    msg.textContent = 'Si ese correo existe, te enviamos un enlace. Revisa spam también.';
+  }catch(err){
+    msg.textContent = 'Error de conexión: ' + err.message;
+  }
+  btn.disabled = false;
+});
+
+document.getElementById('formReset').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const password = document.getElementById('resetPassword').value;
+  const msg = document.getElementById('resetMsg');
+  const btn = e.target.querySelector('.auth-submit');
+  msg.style.color = '';
+  msg.textContent = '';
+  btn.disabled = true;
+  try{
+    const res = await fetch(WORKER_URL + '/auth/reset', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token: window.RESET_TOKEN, password })
+    });
+    const json = await res.json();
+    if(!res.ok){ msg.textContent = json.error || 'Error'; btn.disabled = false; return; }
+    msg.style.color = 'var(--mint)';
+    msg.textContent = 'Contraseña actualizada. Ya puedes iniciar sesión.';
+    setTimeout(()=>{
+      history.replaceState(null, '', location.pathname);
+      mostrarLoginPanel();
+    }, 1800);
+  }catch(err){
+    msg.textContent = 'Error de conexión: ' + err.message;
+    btn.disabled = false;
+  }
+});
+
+function initGoogleAuth(){
+  if(!window.google || !google.accounts || !google.accounts.id) return;
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredential });
+  const container = document.getElementById('googleBtnContainer');
+  if(container){
+    container.innerHTML = '';
+    google.accounts.id.renderButton(container, {
+      type: 'standard', theme: 'filled_black', size: 'large', shape: 'rectangular',
+      text: 'continue_with', width: container.offsetWidth || 350
+    });
+  }
+}
+
+async function handleGoogleCredential(response){
+  const errEl = document.getElementById('authError');
+  errEl.textContent = '';
+  try{
+    const res = await fetch(WORKER_URL + '/auth/google', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ credential: response.credential })
+    });
+    const json = await res.json();
+    if(!res.ok){ errEl.textContent = json.error || 'No se pudo iniciar sesión con Google'; return; }
+    localStorage.setItem(TOKEN_STORAGE, json.token);
+    mostrarApp();
+  }catch(err){
+    errEl.textContent = 'Error de conexión: ' + err.message;
+  }
+}
+
+function loginWithFacebook(){
+  const errEl = document.getElementById('authError');
+  if(!window.FB){ errEl.textContent = 'Facebook aún no carga, intenta de nuevo en un segundo.'; return; }
+  FB.login(function(response){
+    if(response.authResponse){
+      handleFacebookToken(response.authResponse.accessToken);
+    }
+  }, {scope: 'email'});
+}
+
+async function handleFacebookToken(accessToken){
+  const errEl = document.getElementById('authError');
+  errEl.textContent = '';
+  try{
+    const res = await fetch(WORKER_URL + '/auth/facebook', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ accessToken })
+    });
+    const json = await res.json();
+    if(!res.ok){ errEl.textContent = json.error || 'No se pudo iniciar sesión con Facebook'; return; }
+    localStorage.setItem(TOKEN_STORAGE, json.token);
+    mostrarApp();
+  }catch(err){
+    errEl.textContent = 'Error de conexión: ' + err.message;
+  }
+}
+
+
 function toggleAuthMode(){
-  authMode = authMode === 'login' ? 'register' : 'login';
-  document.getElementById('authTitle').textContent = authMode === 'login' ? 'Iniciar sesión' : 'Crear cuenta';
-  document.getElementById('authToggle').textContent = authMode === 'login' ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión';
+  const card = document.querySelector('.auth-card');
+  if(card.classList.contains('auth-animating')) return;
+  const view = document.querySelector('.auth-view');
+  const nextMode = authMode === 'login' ? 'register' : 'login';
+  const dir = nextMode === 'register' ? 'fwd' : 'back';
+
+  card.classList.add('auth-animating');
+
+  const clone = view.cloneNode(true);
+  clone.classList.add('auth-view-ghost');
+  clone.setAttribute('aria-hidden', 'true');
+  clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+  clone.querySelectorAll('input,button,select,textarea,a').forEach(el => { el.disabled = true; el.tabIndex = -1; });
+  view.parentNode.insertBefore(clone, view);
+
+  authMode = nextMode;
+  const isLogin = authMode === 'login';
+  document.getElementById('authTitle').textContent = isLogin ? 'Welcome back' : 'Create an account';
+  document.getElementById('authSubtitle').textContent = isLogin ? 'Keep your money moving with intention.' : 'Start building better money habits today.';
+  document.getElementById('authToggle').textContent = isLogin ? 'New to Finzn? Create an account' : 'Already have an account? Sign in';
+  document.getElementById('authPasswordLabel').textContent = isLogin ? 'Password' : 'Create a password';
+  document.getElementById('authPassword').placeholder = isLogin ? 'At least 6 characters' : 'Choose a secure password';
   document.getElementById('authError').textContent = '';
+  document.getElementById('forgotLinkWrap').style.display = isLogin ? 'block' : 'none';
+
+  clone.classList.add(dir === 'fwd' ? 'slide-out-left' : 'slide-out-right');
+  view.classList.add(dir === 'fwd' ? 'slide-in-right' : 'slide-in-left');
+
+  clone.addEventListener('animationend', () => clone.remove(), {once:true});
+  view.addEventListener('animationend', () => {
+    view.classList.remove('slide-in-right', 'slide-in-left');
+    card.classList.remove('auth-animating');
+  }, {once:true});
 }
 
 function mostrarApp(){
   document.getElementById('landingScreen').style.display = 'none';
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('appRoot').style.display = 'block';
+  stopStarField();
   cargarNubeInicial();
 }
 
@@ -863,7 +1105,17 @@ document.getElementById('formAuth').addEventListener('submit', async e=>{
   btn.disabled = false;
 });
 
-if(getToken()){ mostrarApp(); }
+const resetTokenFromUrl = new URLSearchParams(location.search).get('reset');
+if(resetTokenFromUrl){
+  window.RESET_TOKEN = resetTokenFromUrl;
+  document.getElementById('landingScreen').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('viewLogin').style.display = 'none';
+  document.getElementById('viewReset').style.display = 'block';
+  startStarField();
+}else if(getToken()){ mostrarApp(); }
+
+window.addEventListener('load', ()=>{ initGoogleAuth(); });
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=> navigator.serviceWorker.register('/sw.js').catch(()=>{}));

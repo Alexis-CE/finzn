@@ -30,6 +30,44 @@ async function getUserIdFromToken(env, request) {
   return row.user_id;
 }
 
+async function getOrCreateUserByEmail(env, email) {
+  const existing = await env.FINZN_DB.prepare("SELECT id FROM users WHERE email = ?").bind(email).first();
+  if (existing) return existing.id;
+  const res = await env.FINZN_DB.prepare("INSERT INTO users (email, password_hash) VALUES (?, '')").bind(email).run();
+  return res.meta.last_row_id;
+}
+
+async function issueSession(env, userId) {
+  const token = genToken();
+  const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  await env.FINZN_DB.prepare("INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)").bind(token, userId, expires).run();
+  return token;
+}
+
+async function verifyGoogleIdToken(idToken, env) {
+  const res = await fetch("https://oauth2.googleapis.com/tokeninfo?id_token=" + encodeURIComponent(idToken));
+  if (!res.ok) return null;
+  const payload = await res.json();
+  if (payload.aud !== env.GOOGLE_CLIENT_ID) return null;
+  if (payload.email_verified !== "true" && payload.email_verified !== true) return null;
+  return payload;
+}
+
+async function sendResetEmail(env, email, link) {
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + env.RESEND_API_KEY },
+      body: JSON.stringify({
+        from: env.RESEND_FROM || "Finzn <onboarding@resend.dev>",
+        to: [email],
+        subject: "Recupera tu contraseña de Finzn",
+        html: `<p>Alguien pidió restablecer la contraseña de tu cuenta Finzn.</p><p><a href="${link}">Haz clic aquí para crear una nueva contraseña</a></p><p>Este enlace expira en 30 minutos. Si tú no lo pediste, ignora este correo.</p>`,
+      }),
+    });
+  } catch (e) { /* no revelar errores al cliente */ }
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -98,6 +136,83 @@ export default {
       await env.FINZN_DB.prepare("INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)").bind(token, user.id, expires).run();
 
       return new Response(JSON.stringify({ token, email }), { status: 200, headers: jsonHeaders });
+    }
+
+    if (url.pathname === "/auth/google" && request.method === "POST") {
+      let body;
+      try { body = await request.json(); } catch (e) { return err("JSON inválido"); }
+      const payload = await verifyGoogleIdToken(body.credential, env);
+      if (!payload) return err("Token de Google inválido", 401);
+      const email = (payload.email || "").trim().toLowerCase();
+      if (!email) return err("Google no devolvió email", 401);
+
+      const userId = await getOrCreateUserByEmail(env, email);
+      const token = await issueSession(env, userId);
+      return new Response(JSON.stringify({ token, email }), { status: 200, headers: jsonHeaders });
+    }
+
+    if (url.pathname === "/auth/facebook" && request.method === "POST") {
+      let body;
+      try { body = await request.json(); } catch (e) { return err("JSON inválido"); }
+      const accessToken = body.accessToken;
+      if (!accessToken) return err("Falta accessToken");
+
+      const debugRes = await fetch(`https://graph.facebook.com/debug_token?input_token=${accessToken}&access_token=${env.FACEBOOK_APP_ID}|${env.FACEBOOK_APP_SECRET}`);
+      const debugJson = await debugRes.json();
+      if (!debugJson.data || !debugJson.data.is_valid || String(debugJson.data.app_id) !== String(env.FACEBOOK_APP_ID)) {
+        return err("Token de Facebook inválido", 401);
+      }
+
+      const meRes = await fetch(`https://graph.facebook.com/me?fields=id,email&access_token=${accessToken}`);
+      const me = await meRes.json();
+      const email = (me.email || "").trim().toLowerCase();
+      if (!email) return err("Tu cuenta de Facebook no tiene email verificado", 401);
+
+      const userId = await getOrCreateUserByEmail(env, email);
+      const token = await issueSession(env, userId);
+      return new Response(JSON.stringify({ token, email }), { status: 200, headers: jsonHeaders });
+    }
+
+    if (url.pathname === "/auth/forgot" && request.method === "POST") {
+      let body;
+      try { body = await request.json(); } catch (e) { return err("JSON inválido"); }
+      const email = (body.email || "").trim().toLowerCase();
+      if (isValidEmail(email)) {
+        const user = await env.FINZN_DB.prepare("SELECT id FROM users WHERE email = ?").bind(email).first();
+        if (user) {
+          const token = genToken();
+          const expires = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+          await env.FINZN_DB.prepare("INSERT INTO password_resets (token, user_id, expires_at) VALUES (?, ?, ?)").bind(token, user.id, expires).run();
+          const resetLink = "https://finzn.pages.dev/?reset=" + token;
+          await sendResetEmail(env, email, resetLink);
+        }
+      }
+      // Siempre ok:true, así no se puede usar este endpoint para adivinar qué emails están registrados
+      return new Response(JSON.stringify({ ok: true }), { status: 200, headers: jsonHeaders });
+    }
+
+    if (url.pathname === "/auth/reset" && request.method === "POST") {
+      let body;
+      try { body = await request.json(); } catch (e) { return err("JSON inválido"); }
+      const token = body.token || "";
+      const password = body.password || "";
+      if (password.length < 6) return err("La contraseña necesita al menos 6 caracteres");
+
+      const row = await env.FINZN_DB.prepare("SELECT user_id, expires_at FROM password_resets WHERE token = ?").bind(token).first();
+      if (!row) return err("Enlace inválido o ya usado", 401);
+      if (new Date(row.expires_at) < new Date()) {
+        await env.FINZN_DB.prepare("DELETE FROM password_resets WHERE token = ?").bind(token).run();
+        return err("El enlace expiró, pide uno nuevo", 401);
+      }
+
+      const salt = crypto.randomUUID();
+      const hash = await hashPassword(password, salt);
+      const stored = salt + ":" + hash;
+      await env.FINZN_DB.prepare("UPDATE users SET password_hash = ? WHERE id = ?").bind(stored, row.user_id).run();
+      await env.FINZN_DB.prepare("DELETE FROM password_resets WHERE token = ?").bind(token).run();
+      await env.FINZN_DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(row.user_id).run();
+
+      return new Response(JSON.stringify({ ok: true }), { status: 200, headers: jsonHeaders });
     }
 
     if (url.pathname === "/auth/logout" && request.method === "POST") {
