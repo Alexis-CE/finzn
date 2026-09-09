@@ -806,6 +806,18 @@ function togglePwVisibility(){
   btn.textContent = show ? '🙈' : '👁';
 }
 
+function mostrarLanding(){
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('landingScreen').style.display = 'block';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function mostrarLogin(){
+  document.getElementById('landingScreen').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('authEmail').focus();
+}
+
 function toggleAuthMode(){
   authMode = authMode === 'login' ? 'register' : 'login';
   document.getElementById('authTitle').textContent = authMode === 'login' ? 'Iniciar sesión' : 'Crear cuenta';
@@ -814,6 +826,7 @@ function toggleAuthMode(){
 }
 
 function mostrarApp(){
+  document.getElementById('landingScreen').style.display = 'none';
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('appRoot').style.display = 'block';
   cargarNubeInicial();

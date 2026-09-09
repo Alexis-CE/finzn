@@ -13,8 +13,58 @@
 </head>
 <body>
 
-<div id="authScreen" class="auth-screen">
+<div id="landingScreen" class="landing-screen">
+  <nav class="landing-nav" aria-label="Navegación principal">
+    <a class="brand" href="#inicio" aria-label="Finzn, inicio">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" role="img"><path d="M6 3h12v4H10v3h7v4h-7v7H6V3Z"/></svg></span>
+      <span>finzn<span class="brand-dot">.</span></span>
+    </a>
+    <button type="button" class="landing-login-link" onclick="mostrarLogin()">Iniciar sesión <span aria-hidden="true">↗</span></button>
+  </nav>
+
+  <main class="landing-main" id="inicio">
+    <section class="landing-hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> Finanzas personales, sin drama</p>
+        <h1>Que tu dinero deje de sentirse como un misterio.</h1>
+        <p class="hero-lead">Finzn te ayuda a registrar tus gastos, entender tus hábitos y avanzar hacia tus metas con claridad. Todo en un solo lugar y a tu ritmo.</p>
+        <div class="hero-actions">
+          <button type="button" class="landing-cta" onclick="mostrarLogin()">Empezar gratis <span aria-hidden="true">→</span></button>
+          <a class="hero-text-link" href="#como-funciona">Ver cómo funciona <span aria-hidden="true">↓</span></a>
+        </div>
+        <p class="hero-note"><span aria-hidden="true">✦</span> Tus datos se guardan de forma segura en tu cuenta</p>
+      </div>
+
+      <div class="hero-preview" aria-label="Vista previa del dashboard de Finzn">
+        <div class="preview-topline"><span class="preview-pulse"></span><span>Tu resumen de abril</span><span class="preview-menu">•••</span></div>
+        <div class="preview-balance-label">Balance disponible</div>
+        <div class="preview-balance">$8,240<span>.00</span></div>
+        <div class="preview-change">↑ 12.8% <small>vs. mes anterior</small></div>
+        <div class="preview-chart" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><i></i></div>
+        <div class="preview-stats"><div><small>Ingresos</small><strong>$14,500</strong></div><div><small>Gastos</small><strong>$6,260</strong></div></div>
+        <div class="preview-insight"><span class="insight-icon" aria-hidden="true">✦</span><div><strong>Vas muy bien</strong><small>Este mes gastaste menos en salidas.</small></div><span aria-hidden="true">→</span></div>
+      </div>
+    </section>
+
+    <section class="landing-benefits" aria-label="Beneficios de Finzn">
+      <article><span class="benefit-icon benefit-mint" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V9m5 10V5m5 14v-7m5 7V3"/></svg></span><div><h2>Ve claro</h2><p>Entiende a dónde se va cada peso.</p></div></article>
+      <article><span class="benefit-icon benefit-coral" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 19 19 5M7 5h12v12"/></svg></span><div><h2>Avanza</h2><p>Convierte tus metas en pasos reales.</p></div></article>
+      <article><span class="benefit-icon benefit-gold" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v18M17 7.5c0-1.7-2.2-3-5-3s-5 1.3-5 3 2.2 3 5 3 5 1.3 5 3-2.2 3-5 3-5-1.3-5-3"/></svg></span><div><h2>Decide mejor</h2><p>Usa tus datos, no tus suposiciones.</p></div></article>
+    </section>
+
+    <section class="how-section" id="como-funciona">
+      <div class="section-heading"><p class="eyebrow">Así de sencillo</p><h2>Tu dinero, en tres movimientos.</h2><p>Finzn está diseñado para que llevar el control no se convierta en otra tarea pesada.</p></div>
+      <div class="steps"><article><span>01</span><h3>Registra</h3><p>Anota ingresos y gastos en segundos, desde cualquier dispositivo.</p></article><article><span>02</span><h3>Observa</h3><p>Descubre patrones con gráficas, presupuestos y comparativas.</p></article><article><span>03</span><h3>Decide</h3><p>Define una meta y recibe ideas concretas para acercarte a ella.</p></article></div>
+    </section>
+
+    <section class="landing-final"><div><p class="eyebrow">Empieza hoy</p><h2>La tranquilidad también se puede presupuestar.</h2></div><button type="button" class="landing-cta" onclick="mostrarLogin()">Entrar a Finzn <span aria-hidden="true">→</span></button></section>
+  </main>
+  <footer class="landing-footer"><span>finzn<span class="brand-dot">.</span></span><span>Hecho para entender mejor tu lana.</span></footer>
+</div>
+
+<div id="authScreen" class="auth-screen" style="display:none">
   <div class="auth-card">
+    <button type="button" class="auth-back" onclick="mostrarLanding()">← Volver a Finzn</button>
     <div class="auth-logo">💸</div>
     <h1 class="auth-title" id="authTitle">Iniciar sesión</h1>
 
