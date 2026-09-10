@@ -60,12 +60,6 @@ const I18N = {
     btnGuardarPresupuesto: 'Guardar límite',
     presupuestoVacio: 'Aún no has puesto límites. Agrega uno arriba.',
     presupuestoDe: 'de',
-    syncCodePrompt: 'Inventa un código secreto para sincronizar entre tus dispositivos (usa el mismo en todos):',
-    syncSubido: '☁️ Datos subidos a la nube.',
-    syncBajado: '☁️ Datos bajados y actualizados.',
-    syncNoEncontrado: 'No hay nada guardado con ese código todavía. Sube tus datos primero desde otro dispositivo.',
-    syncConfirmar: 'Esto va a reemplazar tus datos locales con los de la nube. ¿Continuar?',
-    syncError: 'Error de sincronización: '
   },
   en: {
     title: '💸 Where does my money go?',
@@ -110,12 +104,6 @@ const I18N = {
     btnGuardarPresupuesto: 'Save limit',
     presupuestoVacio: 'No limits set yet. Add one above.',
     presupuestoDe: 'of',
-    syncCodePrompt: 'Make up a secret code to sync between your devices (use the same one everywhere):',
-    syncSubido: '☁️ Data uploaded to the cloud.',
-    syncBajado: '☁️ Data downloaded and updated.',
-    syncNoEncontrado: 'Nothing saved under that code yet. Upload your data first from another device.',
-    syncConfirmar: 'This will replace your local data with the cloud version. Continue?',
-    syncError: 'Sync error: '
   }
 };
 
@@ -270,6 +258,29 @@ function aplicarTema(){
 function toggleMenu(){
   document.getElementById('sideMenu').classList.toggle('open');
   document.getElementById('menuOverlay').classList.toggle('open');
+}
+
+function configurarNavegacionMovil(){
+  const links = [...document.querySelectorAll('.mobile-nav a')];
+  const targets = links
+    .map(link => ({link, target: document.querySelector(link.getAttribute('href'))}))
+    .filter(item => item.target);
+  if(!targets.length) return;
+
+  const activar = link => links.forEach(item => item.classList.toggle('active', item === link));
+  targets.forEach(({link}) => link.addEventListener('click', () => activar(link)));
+
+  const actualizarDesdeScroll = () => {
+    if(document.getElementById('appRoot').style.display === 'none') return;
+    const marcador = window.innerHeight * .32;
+    let current = targets[0];
+    targets.forEach(item => {
+      if(item.target.getBoundingClientRect().top <= marcador) current = item;
+    });
+    activar(current.link);
+  };
+  window.addEventListener('scroll', actualizarDesdeScroll, {passive:true});
+  window.addEventListener('resize', actualizarDesdeScroll);
 }
 
 function aplicarIdioma(){
@@ -441,24 +452,26 @@ function render(){
   const labelsG = Object.keys(porCat).map(k => (ICONS[k]||'') + ' ' + (CATEGORY_LABELS[k] ? CATEGORY_LABELS[k][currentLang] : k));
   const dataG = Object.values(porCat);
 
-  if(chart) chart.destroy();
-  chart = new Chart(document.getElementById('chart'), {
-    type:'doughnut',
-    data:{labels:labelsG, datasets:[{data:dataG, backgroundColor:['#5ee6b8','#ff8b6b','#7aa2ff','#ffd66b','#ff5f6d','#b98bff','#6bd6ff','#c4c4c4','#5ee6b8']}]},
-    options:{plugins:{legend:{position:'bottom',labels:{color:'#e8eaed',boxWidth:12,font:{size:10}}}}}
-  });
-
   const porFuente = {};
   ingresos.forEach(g=>porFuente[g.categoria]=(porFuente[g.categoria]||0)+g.monto);
   const labelsI = Object.keys(porFuente).map(k => (ICONS[k]||'') + ' ' + (CATEGORY_LABELS[k] ? CATEGORY_LABELS[k][currentLang] : k));
   const dataI = Object.values(porFuente);
 
-  if(chartIngresos) chartIngresos.destroy();
-  chartIngresos = new Chart(document.getElementById('chartIngresos'), {
-    type:'doughnut',
-    data:{labels:labelsI, datasets:[{data:dataI, backgroundColor:['#5ee6b8','#7aa2ff','#ffd66b','#ff8b6b','#b98bff']}]},
-    options:{plugins:{legend:{position:'bottom',labels:{color:'#e8eaed',boxWidth:12,font:{size:10}}}}}
-  });
+  if(typeof Chart === 'function'){
+    if(chart) chart.destroy();
+    chart = new Chart(document.getElementById('chart'), {
+      type:'doughnut',
+      data:{labels:labelsG, datasets:[{data:dataG, backgroundColor:['#5ee6b8','#ff8b6b','#7aa2ff','#ffd66b','#ff5f6d','#b98bff','#6bd6ff','#c4c4c4','#5ee6b8']}]},
+      options:{plugins:{legend:{position:'bottom',labels:{color:'#e8eaed',boxWidth:12,font:{size:10}}}}}
+    });
+
+    if(chartIngresos) chartIngresos.destroy();
+    chartIngresos = new Chart(document.getElementById('chartIngresos'), {
+      type:'doughnut',
+      data:{labels:labelsI, datasets:[{data:dataI, backgroundColor:['#5ee6b8','#7aa2ff','#ffd66b','#ff8b6b','#b98bff']}]},
+      options:{plugins:{legend:{position:'bottom',labels:{color:'#e8eaed',boxWidth:12,font:{size:10}}}}}
+    });
+  }
 
   renderMeta();
   renderPresupuestos();
@@ -1129,6 +1142,7 @@ let deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', e=>{
   e.preventDefault();
   deferredInstallPrompt = e;
+  actualizarEstadoInstalacion();
 });
 
 async function instalarApp(){
@@ -1139,16 +1153,26 @@ async function instalarApp(){
     document.getElementById('btnInstallApp').style.display = 'none';
     return;
   }
-  alert('Chrome todavía no marca esta página como instalable en este dispositivo (necesita que hayas navegado un poco, ~30 seg, y tocado la pantalla al menos una vez). Usa la app un rato, cierra este mensaje, y vuelve a intentar el botón. Si sigue sin salir, revisa en el menú ⋮ de Chrome si ya dice "Instalar app" en vez de "Agregar a inicio".');
+  if(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream){
+    alert('En iPhone o iPad: abre el botón Compartir y elige "Agregar a pantalla de inicio". Apple no permite mostrar el aviso de instalación desde la página.');
+    return;
+  }
+  alert('Esta versión ya puede funcionar sin conexión. Para instalarla como app, abre el menú del navegador y elige "Instalar Finzn" o "Agregar a pantalla de inicio".');
 }
 
-if(!appYaInstalada()){
-  document.getElementById('btnInstallApp').style.display = 'block';
+function actualizarEstadoInstalacion(){
+  const button = document.getElementById('btnInstallApp');
+  if(button) button.style.display = appYaInstalada() ? 'none' : 'block';
 }
+
+actualizarEstadoInstalacion();
 
 window.addEventListener('appinstalled', ()=>{
-  document.getElementById('btnInstallApp').style.display = 'none';
+  deferredInstallPrompt = null;
+  actualizarEstadoInstalacion();
 });
+
+configurarNavegacionMovil();
 
 aplicarTema();
 aplicarIdioma();

@@ -1,8 +1,8 @@
 ## 💸 Finzn
 
-Tracker de finanzas personales: registra ingresos y gastos, ponte metas y presupuestos, visualiza en qué se te va el dinero, sincroniza entre tus dispositivos, y pide un análisis con IA (gratis, vía Groq a través de un proxy propio) sobre tus patrones de gasto.
+Tracker de finanzas personales: registra ingresos y gastos, ponte metas y presupuestos, visualiza en qué se te va el dinero, sincroniza automáticamente entre tus dispositivos, y pide un análisis con IA vía Groq a través de un proxy propio.
 
-Sin backend propio para los datos, sin login tradicional, sin base de datos SQL. Todo corre en tu navegador 
+Finzn usa login real con email/contraseña o Google. Las cuentas, sesiones y datos sincronizados viven en Cloudflare D1.
 
 ### Features
 
@@ -18,26 +18,34 @@ Sin backend propio para los datos, sin login tradicional, sin base de datos SQL.
 - **Bilingüe ES/EN**: toda la interfaz y el análisis de IA responden en el idioma que elijas
 - **Tema claro/oscuro** con transición animada
 - **Menú ☰ lateral** para saltar entre secciones en mobile
-- **Sync entre dispositivos**: código secreto propio + Cloudflare KV — subes datos en un dispositivo, los bajas en otro (manual, no en tiempo real)
+- **Sync entre dispositivos**: sincronización automática por cuenta autenticada usando Cloudflare D1
+- **Autenticación**: email/contraseña, Google OAuth y recuperación de contraseña por correo con Resend
 - **Persistencia local**: tus datos, meta y presupuestos se guardan en `localStorage`
 - **Export/Import**: JSON completo (respaldo) o CSV (para abrir en Excel/Sheets)
 - **Mobile-first**: tabla se convierte en tarjetas en pantallas chicas, header responsive
+- **PWA instalable**: puede instalarse como app desde Chrome/Edge y conserva la interfaz en caché para abrirla sin conexión
 
 ### Setup
 
 1. Clona el repo
 2. Abre `index.html` en tu navegador, o entra directo a [finzn.pages.dev](https://finzn.pages.dev)
-3. El análisis de IA ya funciona sin pedirte nada — pasa por un Cloudflare Worker propio (`cloudflare-worker.js`) que guarda la key de Groq como secret
-4. Para sync entre dispositivos: dale a "☁️⬆" la primera vez, inventa un código secreto, y en tu otro dispositivo usa el mismo código con "☁️⬇"
+3. El análisis de IA pasa por un Cloudflare Worker propio (`cloudflare-worker.js`) que guarda la key de Groq como secret
+4. Inicia sesión con email/contraseña o Google para que los datos se sincronicen automáticamente entre dispositivos
+
+### Instalar como app
+
+En Chrome o Edge, abre Finzn por HTTPS y usa el botón **Descargar app** del menú lateral. Si el navegador no muestra el aviso automático, abre el menú del navegador y selecciona **Instalar Finzn**. En iPhone/iPad usa **Compartir > Agregar a pantalla de inicio**.
+
+La interfaz principal se guarda en caché mediante el service worker `sw.js`, por lo que el dashboard puede abrirse sin conexión. Las funciones que necesitan servicios externos, como Google, IA y sincronización en la nube, requieren internet.
 
 ### Stack
 
 - HTML / CSS / JavaScript vanilla — sin frameworks, sin build step
 - [Chart.js](https://www.chartjs.org/) para las gráficas
-- [Groq API](https://groq.com/) (`llama-3.3-70b-versatile`) para el análisis con IA, vía un [Cloudflare Worker]
+- [Groq API](https://groq.com/) (`openai/gpt-oss-20b`) para el análisis con IA, vía un [Cloudflare Worker]
 
 ### Notas
 
-- Tus datos (`localStorage`) nunca salen de tu navegador salvo cuando usas sync explícitamente
-- Sync es manual, no en tiempo real: si editas en 2 dispositivos sin sincronizar entre medio, gana el último que subió
+- Tus datos se guardan localmente para permitir uso offline y se sincronizan automáticamente con la cuenta autenticada cuando hay conexión
+- La sincronización usa Cloudflare D1 y el token de sesión; no depende de códigos secretos ni de Cloudflare KV
 - El Worker (`finzn-proxy`) solo acepta peticiones desde `finzn.pages.dev` — CORS restringido

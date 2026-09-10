@@ -6,6 +6,9 @@
 <title>Finzn · ¿En qué se me va la lana?</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%B8%3C/text%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://connect.facebook.net/es_LA/sdk.js" async defer></script>
@@ -153,9 +156,9 @@
 
 <div id="appRoot" style="display:none">
 <header>
-  <button class="hamburger" id="hamburger" onclick="toggleMenu()">☰</button>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Abrir menú">☰</button>
   <div class="header-title"><h1 id="appTitle">💸 ¿En qué se me va la lana?</h1><div class="sub" id="appSub">Ingresos, gastos y consejos con IA</div></div>
-  <button class="secondary" id="btnLogout" onclick="cerrarSesion()">🚪</button>
+  <button class="secondary" id="btnLogout" onclick="cerrarSesion()" aria-label="Cerrar sesión">🚪</button>
 </header>
 
 <nav class="side-menu" id="sideMenu">
@@ -186,6 +189,15 @@
 <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
 
 <main>
+  <section class="app-intro" aria-labelledby="dashboardTitle">
+    <div>
+      <p class="app-kicker">RESUMEN FINANCIERO</p>
+      <h2 id="dashboardTitle">Tu dinero, en orden.</h2>
+      <p class="app-intro-copy">Una vista rápida de lo que entra, lo que sale y lo que estás construyendo.</p>
+    </div>
+    <a class="intro-link" href="#movimientos">Ver movimientos <span aria-hidden="true">↘</span></a>
+  </section>
+
   <div class="stats" id="dashboard">
     <div class="stat accent"><div class="icon">💰</div><div class="label" id="lblBalance">Balance</div><div class="val" id="statBalance">$0</div></div>
     <div class="stat pos"><div class="icon">📈</div><div class="label" id="lblIn">Ingresos</div><div class="val" id="statIn">$0</div></div>
@@ -310,6 +322,12 @@
     <div id="iaResult"></div>
   </div>
 </main>
+<nav class="mobile-nav" aria-label="Secciones principales">
+  <a class="active" href="#dashboard"><span aria-hidden="true">⌂</span>Inicio</a>
+  <a href="#movimientos"><span aria-hidden="true">↕</span>Movimientos</a>
+  <a href="#presupuesto"><span aria-hidden="true">▥</span>Presupuesto</a>
+  <a href="#metaSeccion"><span aria-hidden="true">✦</span>Meta</a>
+</nav>
 </div>
 
 <script src="js/main.js?v=6"></script>
