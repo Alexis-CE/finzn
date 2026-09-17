@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "dev.pages.finzn.twa",
+    "sha256_cert_fingerprints": ["A2:D1:00:05:31:4C:1C:89:0B:B2:BD:5C:31:41:6E:5F:D2:8B:71:5B:9F:CB:66:A1:2D:4C:86:A7:15:53:D0:2B"]
+  }
+}]
