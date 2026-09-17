@@ -16,6 +16,10 @@
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
+  "screenshots": [
+    { "src": "dashboard-mobile.png", "sizes": "390x844", "type": "image/png", "form_factor": "narrow" },
+    { "src": "dashboard-desktop.png", "sizes": "1280x1979", "type": "image/png", "form_factor": "narrow" }
+  ],
   "shortcuts": [
     {
       "name": "Registrar movimiento",
