@@ -12,20 +12,21 @@
   "background_color": "#0b0d12",
   "theme_color": "#0b0d12",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "https://finzn.pages.dev/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "https://finzn.pages.dev/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "https://finzn.pages.dev/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "screenshots": [
-    { "src": "dashboard-mobile.png", "sizes": "390x844", "type": "image/png", "form_factor": "narrow" },
-    { "src": "dashboard-desktop.png", "sizes": "1280x1979", "type": "image/png", "form_factor": "narrow" }
+    { "src": "https://finzn.pages.dev/dashboard-mobile.png", "sizes": "390x844", "type": "image/png", "form_factor": "narrow" },
+    { "src": "https://finzn.pages.dev/dashboard-desktop.png", "sizes": "1280x1979", "type": "image/png", "form_factor": "narrow" }
   ],
   "shortcuts": [
     {
       "name": "Registrar movimiento",
       "short_name": "Registrar",
       "url": "/#dashboard",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "https://finzn.pages.dev/icon-192.png", "sizes": "192x192" }]
     }
-  ]
+  ],
+  "categories": ["finance", "productivity"]
 }
